@@ -134,7 +134,7 @@ export default function App() {
     scrollToActive();
   }, [activeLineId]);
 
-  // ===== 音声認識セットアップ =====
+  // ===== 音声認識セットアップ（Android重複バグ修正版） =====
   useEffect(() => {
     if (typeof window === "undefined") return;
      
@@ -149,17 +149,19 @@ export default function App() {
     rec.interimResults = true;
     rec.continuous = true;
 
+    // ▼▼▼ 修正ポイント：Androidで文字が重複しない書き方に変更 ▼▼▼
     rec.onresult = (event) => {
-      let interim = "";
-      let finalSession = "";
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const t = event.results[i][0].transcript;
-        if (event.results[i].isFinal) finalSession += t;
-        else interim += t;
+      let currentSessionText = "";
+      
+      // 毎回最初から最後まで読み取ることで、重複追加を防ぐ
+      for (let i = 0; i < event.results.length; i++) {
+        currentSessionText += event.results[i][0].transcript;
       }
-      if (finalSession) accumulatedTranscriptRef.current += finalSession;
-      setRecognizedText(accumulatedTranscriptRef.current + interim);
+      
+      accumulatedTranscriptRef.current = currentSessionText;
+      setRecognizedText(currentSessionText);
     };
+    // ▲▲▲ 修正ここまで ▲▲▲
 
     rec.onerror = (event) => {
       console.error("Speech Error:", event.error);
@@ -497,7 +499,7 @@ export default function App() {
           <MiniChart data={history.slice(0, 10).reverse()} />
         </div>
 
-        {/* 採点パネル（ここを修正：stickyを削除） */}
+        {/* 採点パネル */}
         <div className="bg-white p-5 rounded-3xl shadow-xl border border-indigo-100 mb-8 relative overflow-hidden">
           {isRecording && <div className="absolute inset-0 border-4 border-rose-400 rounded-3xl animate-pulse pointer-events-none z-20"></div>}
           <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full blur-3xl -z-10 opacity-50 pointer-events-none"></div>
