@@ -410,7 +410,7 @@ export default function App() {
     <div className={`min-h-screen bg-slate-50 p-4 font-sans text-slate-900 transition-colors duration-500 ${isRecording ? "bg-rose-50" : ""}`}>
       <div className="max-w-2xl mx-auto pb-20">
         <h1 className="text-xl font-bold text-indigo-700 text-center mb-6 flex items-center justify-center gap-2">
-          <BookOpen /> 暗記突破ツール Pro
+          <BookOpen /> 暗記突破AI Pro
         </h1>
 
         {permissionError && (
