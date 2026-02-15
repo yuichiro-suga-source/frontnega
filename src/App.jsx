@@ -1,4 +1,4 @@
-"use client"; // Next.jsなどで動くように念のため追加
+"use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -379,8 +379,6 @@ export default function App() {
     }
   };
 
-  // ===== 追加修正した部分：ボタンの動き =====
-  
   // 台本を隠したり見たりする切り替え
   const toggleHide = (id) => {
     setHiddenIds((prev) => {
@@ -499,8 +497,8 @@ export default function App() {
           <MiniChart data={history.slice(0, 10).reverse()} />
         </div>
 
-        {/* 採点パネル */}
-        <div className="bg-white p-5 rounded-3xl shadow-xl border border-indigo-100 mb-8 relative overflow-hidden sticky top-2 z-10">
+        {/* 採点パネル（ここを修正：stickyを削除） */}
+        <div className="bg-white p-5 rounded-3xl shadow-xl border border-indigo-100 mb-8 relative overflow-hidden">
           {isRecording && <div className="absolute inset-0 border-4 border-rose-400 rounded-3xl animate-pulse pointer-events-none z-20"></div>}
           <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full blur-3xl -z-10 opacity-50 pointer-events-none"></div>
 
