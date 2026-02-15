@@ -83,8 +83,8 @@ export default function App() {
   };
 
   // ===== Web対応版：データ読み込みロジック =====
-  // 1. まずは安全な初期値（デフォルト）で立ち上げる
-  const [unlockedAppLines, setUnlockedAppLines] = useState(new Set([1]));
+  // 1. 最初から全てのアポインター行(1, 3, 5)を解放済みにする
+  const [unlockedAppLines, setUnlockedAppLines] = useState(new Set([1, 3, 5]));
   const [history, setHistory] = useState([]);
   const [isDataLoaded, setIsDataLoaded] = useState(false); // データ読み込み完了フラグ
 
@@ -92,10 +92,13 @@ export default function App() {
   useEffect(() => {
     if (typeof window !== "undefined") {
       try {
-        const rawUnlock = localStorage.getItem("toppa_unlocked_v7");
-        if (rawUnlock) {
-           setUnlockedAppLines(new Set(JSON.parse(rawUnlock)));
-        }
+        // ▼▼▼ 修正：ロック状態の読み込みを廃止し、常に全開放状態を維持する ▼▼▼
+        // const rawUnlock = localStorage.getItem("toppa_unlocked_v7");
+        // if (rawUnlock) {
+        //    setUnlockedAppLines(new Set(JSON.parse(rawUnlock)));
+        // }
+        // その代わり、常に1,3,5を入れる
+        setUnlockedAppLines(new Set([1, 3, 5]));
 
         const rawHistory = localStorage.getItem("toppa_history_v7");
         if (rawHistory) {
@@ -113,7 +116,7 @@ export default function App() {
     historyRef.current = history;
   }, [history]);
 
-  // 3. データ読み込みが終わってから保存を開始する（空データでの上書き防止）
+  // 3. データ読み込みが終わってから保存を開始する
   useEffect(() => {
     if (!isDataLoaded) return; 
     localStorage.setItem("toppa_unlocked_v7", JSON.stringify(Array.from(unlockedAppLines)));
@@ -149,15 +152,12 @@ export default function App() {
     rec.interimResults = true;
     rec.continuous = true;
 
-    // ▼▼▼ 修正ポイント：Androidで文字が重複しない書き方に変更 ▼▼▼
+    // ▼▼▼ Android重複対策 ▼▼▼
     rec.onresult = (event) => {
       let currentSessionText = "";
-      
-      // 毎回最初から最後まで読み取ることで、重複追加を防ぐ
       for (let i = 0; i < event.results.length; i++) {
         currentSessionText += event.results[i][0].transcript;
       }
-      
       accumulatedTranscriptRef.current = currentSessionText;
       setRecognizedText(currentSessionText);
     };
@@ -302,11 +302,10 @@ export default function App() {
     }
   };
 
-  const makePraise = ({ res, prev, unlockedNow }) => {
+  const makePraise = ({ res, prev }) => {
     const prevRank = typeof prev?.total === "number" ? getRank(prev.total).label : null;
     const nowRank = getRank(res.total).label;
 
-    if (unlockedNow) return { tone: "emerald", title: "ステージ解放！", body: "合格。次のアポ行に進める。流れができた。" };
     if (prevRank && prevRank !== nowRank && res.total > prev.total) return { tone: "amber", title: `ランクUP：${prevRank} → ${nowRank}`, body: "格が上がった。いまの改善は本物。" };
     const prevHits = Array.isArray(prev?.hits) ? prev.hits : [];
     const newHits = (res.hits || []).filter((h) => !prevHits.includes(h));
@@ -343,13 +342,8 @@ export default function App() {
 
     const prev = (historyRef.current || []).find((h) => h.lineId === activeLineId) || null;
 
-    let unlockedNow = false;
-    if (res.total >= unlockThreshold) {
-      const nextId = activeLineId + 2;
-      const maxId = Math.max(...scriptData.map((x) => x.id));
-      if (nextId <= maxId && isAppLine(nextId) && !unlockedAppLines.has(nextId)) unlockedNow = true;
-      if (nextId <= maxId) setUnlockedAppLines((prevSet) => new Set(prevSet).add(nextId));
-    }
+    // ▼▼▼ 修正：開放ロジックは削除（すでに全開放なので） ▼▼▼
+    // if (res.total >= unlockThreshold) { ... }
 
     setScore(res);
 
@@ -364,21 +358,10 @@ export default function App() {
     };
     setHistory((prevArr) => [entry, ...prevArr].slice(0, 100));
 
-    const p = makePraise({ res, prev, unlockedNow });
+    const p = makePraise({ res, prev });
     setPraise(p);
     if (praiseTimerRef.current) clearTimeout(praiseTimerRef.current);
     praiseTimerRef.current = setTimeout(() => setPraise(null), 6000);
-     
-    // スクロール
-    if (unlockedNow) {
-        setTimeout(() => {
-             const el = lineRefs.current[activeLineId + 2];
-             if(el) {
-                 setActiveLineId(activeLineId + 2);
-                 el.scrollIntoView({ behavior: "smooth", block: "center" });
-             }
-        }, 1500); 
-    }
   };
 
   // 台本を隠したり見たりする切り替え
@@ -450,7 +433,8 @@ export default function App() {
       localStorage.removeItem("toppa_unlocked_v7");
       localStorage.removeItem("toppa_history_v7");
     }
-    setUnlockedAppLines(new Set([1]));
+    // ▼▼▼ 修正：リセット後も全開放にする ▼▼▼
+    setUnlockedAppLines(new Set([1, 3, 5]));
     setHistory([]);
     setHiddenIds(new Set());
     setScore(null);
@@ -463,7 +447,6 @@ export default function App() {
   const rank = score ? getRank(score.total) : null;
 
   // データ読み込み中（isDataLoadedがfalse）は何も表示しないか、ローディングを表示する
-  // これによりサーバーとクライアントの不一致（Hydration Error）を防ぐ
   if (!isDataLoaded && typeof window !== 'undefined') {
       return <div className="min-h-screen bg-slate-50 flex items-center justify-center text-slate-400">Loading...</div>;
   }
