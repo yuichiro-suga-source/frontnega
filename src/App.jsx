@@ -11,6 +11,7 @@ import {
   Eye,
   Sparkles,
   AlertCircle,
+  ArrowDown,
 } from "lucide-react";
 
 export default function App() {
@@ -34,6 +35,9 @@ export default function App() {
   const isRecordingRef = useRef(false);
   const recordStartAtRef = useRef(null);
   const accumulatedTranscriptRef = useRef("");
+  
+  // 自動スクロール用
+  const lineRefs = useRef({});
 
   // ===== 正式台本データ =====
   const scriptData = [
@@ -108,11 +112,25 @@ export default function App() {
     localStorage.setItem("toppa_history_v7", JSON.stringify(history));
   }, [unlockedAppLines, history]);
 
-  // ===== 音声認識セットアップ (修正版) =====
+  // ===== 自動スクロール =====
+  const scrollToActive = () => {
+    setTimeout(() => {
+      const el = lineRefs.current[activeLineId];
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }, 300);
+  };
+
+  // アクティブ行が変わったらスクロール
+  useEffect(() => {
+    scrollToActive();
+  }, [activeLineId]);
+
+  // ===== 音声認識セットアップ =====
   useEffect(() => {
     if (typeof window === "undefined") return;
     
-    // ブラウザ互換対応
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) {
       setErrorMsg("お使いのブラウザは音声認識に対応していません。ChromeまたはSafariをご利用ください。");
@@ -122,7 +140,7 @@ export default function App() {
     const rec = new SR();
     rec.lang = "ja-JP";
     rec.interimResults = true;
-    rec.continuous = true; // スマホだとこれが原因で止まることがあるが、再起動ロジックでカバー
+    rec.continuous = true;
 
     rec.onresult = (event) => {
       let interim = "";
@@ -143,13 +161,11 @@ export default function App() {
         setIsRecording(false);
         isRecordingRef.current = false;
       }
-      // "no-speech" 等は無視して再開を試みる
     };
 
     rec.onend = () => {
       if (isRecordingRef.current) {
         try {
-           // 少し待ってから再開（連打防止）
            setTimeout(() => {
              if (isRecordingRef.current) rec.start();
            }, 100);
@@ -168,28 +184,14 @@ export default function App() {
     };
   }, []);
 
-  // ===== UI操作 =====
-  const toggleHide = (id) => {
-    setHiddenIds((prev) => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
-  };
-  const showAll = () => setHiddenIds(new Set());
-  const hideAppLines = () => setHiddenIds(new Set(scriptData.filter((x) => x.role === "appointer").map((x) => x.id)));
-
-  // ===== 採点ロジック (改良版) =====
-  
-  // 文字列の正規化（ひらがな化などは簡易実装。実際はAPIがないと完全変換は不可だが、記号除去を強化）
+  // ===== 採点ロジック =====
   const normalize = (s) =>
     (s || "")
       .toLowerCase()
       .replace(/[、。？！\s\n・,.]/g, "")
       .replace(/〇〇/g, "")
-      .replace(/お客/g, "きゃく"); // よくある揺らぎ吸収例
+      .replace(/お客/g, "きゃく");
 
-  // レーベンシュタイン距離
   function levenshtein(a, b) {
     const tmp = Array.from({ length: a.length + 1 }, () => new Array(b.length + 1).fill(0));
     for (let i = 0; i <= a.length; i++) tmp[i][0] = i;
@@ -208,21 +210,18 @@ export default function App() {
     const t = normalize(target);
     const s = normalize(said);
 
-    // 再現度（60点満点）
-    // 文字数差が大きすぎる場合は0点にするガードを追加
     if (s.length === 0) return { total: 0, match: 0, tempo: 0, fillerScore: 0, fillersCount: 0, cps: 0, bonus: 0, hits: [], misses: [], ngHits: [], ngPenalty: 0 };
 
     const dist = levenshtein(t, s);
-    // 類似度計算： (長い方の長さ - 距離) / 長い方の長さ
     const maxLen = Math.max(t.length, s.length);
     const sim = maxLen === 0 ? 0 : Math.max(0, (maxLen - dist) / maxLen);
     
-    // 緩和措置：8割以上あってれば一旦高得点扱いにするカーブを描く
+    // 60点満点
     const match = Math.min(60, Math.round(Math.pow(sim, 1.5) * 60 * 1.1)); 
 
     // テンポ（10点）
     const cps = duration > 0 ? s.length / duration : 0;
-    const tempo = cps >= 4 && cps <= 8 ? 10 : (cps > 2 && cps < 10 ? 5 : 0); // 許容範囲を少し拡大
+    const tempo = cps >= 4 && cps <= 8 ? 10 : (cps > 2 && cps < 10 ? 5 : 0);
 
     // フィラー（10点）
     const fillersCount = (said.match(/えー|あの|えっと|あのー|その|あー/g) || []).length;
@@ -232,11 +231,10 @@ export default function App() {
     const rule = keywordRules[lineId] || { must: [], ng: [] };
     const hits = rule.must.filter((kw) => s.includes(normalize(kw)));
     const misses = rule.must.filter((k) => !hits.includes(k));
-    // キーワードボーナス配分見直し
     const bonusPerWord = rule.must.length > 0 ? 20 / rule.must.length : 0;
     const bonus = Math.min(20, Math.round(hits.length * bonusPerWord));
 
-    // NG減点（最大-8点）
+    // NG減点
     const ngHits = (rule.ng || []).filter((ng) => s.includes(normalize(ng)));
     const ngPenalty = Math.min(8, ngHits.length * 3);
 
@@ -288,7 +286,6 @@ export default function App() {
       recognitionRef.current.start();
     } catch (e) {
       console.error(e);
-      // 既に動いている場合は一旦止めて再開
       try {
         recognitionRef.current.stop();
         setTimeout(() => recognitionRef.current.start(), 100);
@@ -302,15 +299,11 @@ export default function App() {
 
     if (unlockedNow) return { tone: "emerald", title: "ステージ解放！", body: "合格。次のアポ行に進める。流れができた。" };
     if (prevRank && prevRank !== nowRank && res.total > prev.total) return { tone: "amber", title: `ランクUP：${prevRank} → ${nowRank}`, body: "格が上がった。いまの改善は本物。" };
-
     const prevHits = Array.isArray(prev?.hits) ? prev.hits : [];
     const newHits = (res.hits || []).filter((h) => !prevHits.includes(h));
     if (newHits.length) return { tone: "amber", title: "伸びたポイント：キーワードが入った", body: `今のは「${newHits[0]}」が入った。強い。` };
-
     if (typeof prev?.total === "number" && res.total > prev.total) return { tone: "violet", title: "スコア更新", body: `前回より +${(res.total - prev.total).toFixed(0)} 点。ちゃんと上手くなってる。` };
-    
     if (res.total < 40) return { tone: "sky", title: "まずは内容を確認", body: "認識がうまくいかなかったかも？もう一度ゆっくり話してみよう。" };
-    
     return { tone: "emerald", title: "ナイスファイト", body: "次は“名詞を落とさず言い切る”だけ意識すると、点が跳ねる。" };
   };
 
@@ -329,7 +322,6 @@ export default function App() {
     isRecordingRef.current = false;
     try { recognitionRef.current.stop(); } catch {}
 
-    // 音声がない場合のガード
     if (!recognizedText && !accumulatedTranscriptRef.current) {
         setErrorMsg("音声が認識されませんでした");
         return;
@@ -337,7 +329,7 @@ export default function App() {
 
     const dur = (Date.now() - recordStartAtRef.current) / 1000;
     const target = getTargetTextForScoring(activeLineId);
-    const textToScore = accumulatedTranscriptRef.current || recognizedText; // 念のため
+    const textToScore = accumulatedTranscriptRef.current || recognizedText;
     const res = buildScore(activeLineId, target, textToScore, dur);
 
     const prev = (historyRef.current || []).find((h) => h.lineId === activeLineId) || null;
@@ -366,7 +358,18 @@ export default function App() {
     const p = makePraise({ res, prev, unlockedNow });
     setPraise(p);
     if (praiseTimerRef.current) clearTimeout(praiseTimerRef.current);
-    praiseTimerRef.current = setTimeout(() => setPraise(null), 6000); // 表示時間少し延長
+    praiseTimerRef.current = setTimeout(() => setPraise(null), 6000);
+    
+    // スクロール
+    if (unlockedNow) {
+        setTimeout(() => {
+             const el = lineRefs.current[activeLineId + 2];
+             if(el) {
+                 setActiveLineId(activeLineId + 2);
+                 el.scrollIntoView({ behavior: "smooth", block: "center" });
+             }
+        }, 1500); // 褒めメッセージを見た後に次へ
+    }
   };
 
   // ===== 次に直す1点 =====
@@ -415,13 +418,14 @@ export default function App() {
     setPraise(null);
     setRecognizedText("");
     setActiveLineId(1);
+    scrollToActive();
   };
 
   const rank = score ? getRank(score.total) : null;
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4 font-sans text-slate-900">
-      <div className="max-w-2xl mx-auto pb-10">
+    <div className={`min-h-screen bg-slate-50 p-4 font-sans text-slate-900 transition-colors duration-500 ${isRecording ? "bg-rose-50" : ""}`}>
+      <div className="max-w-2xl mx-auto pb-20">
         <h1 className="text-xl font-bold text-indigo-700 text-center mb-6 flex items-center justify-center gap-2">
           <BookOpen /> 暗記突破ツール Pro
         </h1>
@@ -435,21 +439,6 @@ export default function App() {
              </div>
           </div>
         )}
-
-        {/* 暗記コントロール */}
-        <div className="bg-white p-4 rounded-3xl shadow-sm border border-slate-200 mb-6">
-          <div className="flex gap-2 justify-between items-center">
-            <div className="text-xs text-slate-500 font-bold">暗記モード</div>
-            <div className="flex gap-2">
-              <button onClick={hideAppLines} className="px-3 py-2 rounded-xl bg-indigo-50 text-indigo-700 border border-indigo-100 text-xs font-bold hover:bg-indigo-100 inline-flex items-center gap-1 active:scale-95 transition-transform">
-                <EyeOff size={14} /> アポを隠す
-              </button>
-              <button onClick={showAll} className="px-3 py-2 rounded-xl bg-slate-50 text-slate-700 border border-slate-200 text-xs font-bold hover:bg-slate-100 inline-flex items-center gap-1 active:scale-95 transition-transform">
-                <Eye size={14} /> 全て表示
-              </button>
-            </div>
-          </div>
-        </div>
 
         {/* グラフパネル */}
         <div className="bg-white p-4 rounded-3xl shadow-sm border border-slate-200 mb-6">
@@ -466,8 +455,8 @@ export default function App() {
         </div>
 
         {/* 採点パネル */}
-        <div className="bg-white p-5 rounded-3xl shadow-xl border border-indigo-100 mb-8 relative overflow-hidden">
-          {/* 背景装飾 */}
+        <div className="bg-white p-5 rounded-3xl shadow-xl border border-indigo-100 mb-8 relative overflow-hidden sticky top-2 z-10">
+          {isRecording && <div className="absolute inset-0 border-4 border-rose-400 rounded-3xl animate-pulse pointer-events-none z-20"></div>}
           <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full blur-3xl -z-10 opacity-50 pointer-events-none"></div>
 
           <div className="flex justify-between items-start mb-3">
@@ -481,13 +470,13 @@ export default function App() {
             </div>
 
             {isRecording ? (
-              <button onClick={handleStop} className="bg-rose-500 text-white px-6 py-3 rounded-2xl font-bold animate-pulse shadow-lg flex items-center gap-2 active:scale-95 transition-transform touch-manipulation">
+              <button onClick={handleStop} className="bg-rose-500 text-white px-6 py-3 rounded-2xl font-bold animate-pulse shadow-lg flex items-center gap-2 active:scale-95 transition-transform touch-manipulation z-30">
                 <StopCircle size={20} /> 停止
               </button>
             ) : (
               <button
                 onClick={handleStart}
-                className={`px-6 py-3 rounded-2xl font-bold shadow-lg flex items-center gap-2 transition-all active:scale-95 touch-manipulation ${
+                className={`px-6 py-3 rounded-2xl font-bold shadow-lg flex items-center gap-2 transition-all active:scale-95 touch-manipulation z-30 ${
                   isAppLine(activeLineId) && unlockedAppLines.has(activeLineId)
                     ? "bg-gradient-to-br from-indigo-500 to-indigo-600 text-white hover:shadow-indigo-200 hover:shadow-xl"
                     : "bg-slate-200 text-slate-400 cursor-not-allowed"
@@ -508,7 +497,7 @@ export default function App() {
           </div>
 
           {isRecording && (
-            <div className="bg-indigo-50/50 p-4 rounded-xl text-sm mb-4 border border-indigo-100 text-indigo-800 min-h-[60px] flex items-center justify-center text-center animate-pulse">
+            <div className="bg-indigo-50/50 p-4 rounded-xl text-sm mb-4 border border-indigo-100 text-indigo-800 min-h-[60px] flex items-center justify-center text-center">
               {recognizedText || "話してください..."}
             </div>
           )}
@@ -577,9 +566,14 @@ export default function App() {
             const isApp = item.role === "appointer";
             const locked = isApp && !unlockedAppLines.has(item.id);
             const hidden = hiddenIds.has(item.id);
+            const isActive = activeLineId === item.id;
 
             return (
-              <div key={item.id} className={`p-4 rounded-2xl border-2 transition-all ${activeLineId === item.id && !locked ? "border-indigo-500 bg-white shadow-md ring-4 ring-indigo-50" : "border-slate-100 bg-white"} ${locked ? "opacity-60 grayscale" : ""}`}>
+              <div 
+                key={item.id} 
+                ref={(el) => (lineRefs.current[item.id] = el)}
+                className={`p-4 rounded-2xl border-2 transition-all duration-300 ${isActive && !locked ? "border-indigo-500 bg-white shadow-md ring-4 ring-indigo-50 scale-[1.02]" : "border-slate-100 bg-white"} ${locked ? "opacity-60 grayscale" : ""}`}
+              >
                 <div className="flex justify-between mb-3 items-center">
                   <span className={`text-[10px] font-bold px-2.5 py-1 rounded-md ${isApp ? "bg-indigo-100 text-indigo-700" : "bg-slate-100 text-slate-500"}`}>{item.label}</span>
                   <div className="flex items-center gap-2">
@@ -603,11 +597,26 @@ export default function App() {
           })}
         </div>
 
+        {/* コントロールパネル */}
+        <div className="bg-white p-4 rounded-3xl shadow-sm border border-slate-200 mb-6">
+          <div className="flex gap-2 justify-between items-center">
+            <div className="text-xs text-slate-500 font-bold">暗記補助</div>
+            <div className="flex gap-2">
+              <button onClick={hideAppLines} className="px-3 py-2 rounded-xl bg-indigo-50 text-indigo-700 border border-indigo-100 text-xs font-bold hover:bg-indigo-100 inline-flex items-center gap-1 active:scale-95 transition-transform">
+                <EyeOff size={14} /> アポを隠す
+              </button>
+              <button onClick={showAll} className="px-3 py-2 rounded-xl bg-slate-50 text-slate-700 border border-slate-200 text-xs font-bold hover:bg-slate-100 inline-flex items-center gap-1 active:scale-95 transition-transform">
+                <Eye size={14} /> 全て表示
+              </button>
+            </div>
+          </div>
+        </div>
+
         <button onClick={resetAll} className="w-full py-4 text-slate-400 text-xs font-bold flex items-center justify-center gap-1 hover:text-rose-500 transition-colors">
           <Trash2 size={14} /> データを初期化する
         </button>
 
-        {errorMsg && <div className="fixed bottom-4 left-4 right-4 bg-slate-800 text-white text-xs p-3 rounded-xl text-center shadow-2xl animate-bounce">{errorMsg}</div>}
+        {errorMsg && <div className="fixed bottom-4 left-4 right-4 bg-slate-800 text-white text-xs p-3 rounded-xl text-center shadow-2xl animate-bounce z-50">{errorMsg}</div>}
       </div>
     </div>
   );
