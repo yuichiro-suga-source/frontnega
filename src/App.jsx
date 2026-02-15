@@ -1,3 +1,5 @@
+"use client"; // Next.jsなどで動くように念のため追加
+
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   BookOpen,
@@ -34,7 +36,7 @@ export default function App() {
   const isRecordingRef = useRef(false);
   const recordStartAtRef = useRef(null);
   const accumulatedTranscriptRef = useRef("");
-  
+   
   // 自動スクロール用
   const lineRefs = useRef({});
 
@@ -135,7 +137,7 @@ export default function App() {
   // ===== 音声認識セットアップ =====
   useEffect(() => {
     if (typeof window === "undefined") return;
-    
+     
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) {
       setErrorMsg("お使いのブラウザは音声認識に対応していません。ChromeまたはSafariをご利用ください。");
@@ -220,7 +222,7 @@ export default function App() {
     const dist = levenshtein(t, s);
     const maxLen = Math.max(t.length, s.length);
     const sim = maxLen === 0 ? 0 : Math.max(0, (maxLen - dist) / maxLen);
-    
+     
     // 60点満点
     const match = Math.min(60, Math.round(Math.pow(sim, 1.5) * 60 * 1.1)); 
 
@@ -364,7 +366,7 @@ export default function App() {
     setPraise(p);
     if (praiseTimerRef.current) clearTimeout(praiseTimerRef.current);
     praiseTimerRef.current = setTimeout(() => setPraise(null), 6000);
-    
+     
     // スクロール
     if (unlockedNow) {
         setTimeout(() => {
@@ -376,6 +378,38 @@ export default function App() {
         }, 1500); 
     }
   };
+
+  // ===== 追加修正した部分：ボタンの動き =====
+  
+  // 台本を隠したり見たりする切り替え
+  const toggleHide = (id) => {
+    setHiddenIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  // アポインターの台本だけ隠す
+  const hideAppLines = () => {
+    const next = new Set(hiddenIds);
+    scriptData.forEach((item) => {
+      if (item.role === "appointer") {
+        next.add(item.id);
+      }
+    });
+    setHiddenIds(next);
+  };
+
+  // 全て表示する
+  const showAll = () => {
+    setHiddenIds(new Set());
+  };
+
 
   // ===== 次に直す1点 =====
   const oneFix = useMemo(() => {
@@ -556,7 +590,7 @@ export default function App() {
               {/* NGワード警告 */}
               {score.ngHits?.length > 0 && (
                  <div className="bg-rose-50 border border-rose-100 text-rose-700 text-xs p-2 rounded-lg mb-3 font-bold text-center">
-                    NGワード検出: {score.ngHits.join("、")} (-{score.ngPenalty})
+                   NGワード検出: {score.ngHits.join("、")} (-{score.ngPenalty})
                  </div>
               )}
 
