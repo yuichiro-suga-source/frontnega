@@ -11,7 +11,6 @@ import {
   Eye,
   Sparkles,
   AlertCircle,
-  ArrowDown,
 } from "lucide-react";
 
 export default function App() {
@@ -81,36 +80,43 @@ export default function App() {
     },
   };
 
-  // ===== ローカルストレージ復元 =====
-  const [unlockedAppLines, setUnlockedAppLines] = useState(() => {
-    if (typeof window === "undefined") return new Set([1]);
-    try {
-      const raw = localStorage.getItem("toppa_unlocked_v7");
-      return raw ? new Set(JSON.parse(raw)) : new Set([1]);
-    } catch {
-      return new Set([1]);
-    }
-  });
+  // ===== Web対応版：データ読み込みロジック =====
+  // 1. まずは安全な初期値（デフォルト）で立ち上げる
+  const [unlockedAppLines, setUnlockedAppLines] = useState(new Set([1]));
+  const [history, setHistory] = useState([]);
+  const [isDataLoaded, setIsDataLoaded] = useState(false); // データ読み込み完了フラグ
 
-  const [history, setHistory] = useState(() => {
-    if (typeof window === "undefined") return [];
-    try {
-      const raw = localStorage.getItem("toppa_history_v7");
-      return raw ? JSON.parse(raw) : [];
-    } catch {
-      return [];
+  // 2. 画面が表示された後に、ブラウザからデータを読み込む
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const rawUnlock = localStorage.getItem("toppa_unlocked_v7");
+        if (rawUnlock) {
+           setUnlockedAppLines(new Set(JSON.parse(rawUnlock)));
+        }
+
+        const rawHistory = localStorage.getItem("toppa_history_v7");
+        if (rawHistory) {
+           setHistory(JSON.parse(rawHistory));
+        }
+      } catch (e) {
+        console.error("Load Error", e);
+      }
+      setIsDataLoaded(true); // 読み込み完了
     }
-  });
+  }, []);
 
   const historyRef = useRef(history);
   useEffect(() => {
     historyRef.current = history;
   }, [history]);
 
+  // 3. データ読み込みが終わってから保存を開始する（空データでの上書き防止）
   useEffect(() => {
+    if (!isDataLoaded) return; 
     localStorage.setItem("toppa_unlocked_v7", JSON.stringify(Array.from(unlockedAppLines)));
     localStorage.setItem("toppa_history_v7", JSON.stringify(history));
-  }, [unlockedAppLines, history]);
+  }, [unlockedAppLines, history, isDataLoaded]);
 
   // ===== 自動スクロール =====
   const scrollToActive = () => {
@@ -122,7 +128,6 @@ export default function App() {
     }, 300);
   };
 
-  // アクティブ行が変わったらスクロール
   useEffect(() => {
     scrollToActive();
   }, [activeLineId]);
@@ -368,7 +373,7 @@ export default function App() {
                  setActiveLineId(activeLineId + 2);
                  el.scrollIntoView({ behavior: "smooth", block: "center" });
              }
-        }, 1500); // 褒めメッセージを見た後に次へ
+        }, 1500); 
     }
   };
 
@@ -422,6 +427,12 @@ export default function App() {
   };
 
   const rank = score ? getRank(score.total) : null;
+
+  // データ読み込み中（isDataLoadedがfalse）は何も表示しないか、ローディングを表示する
+  // これによりサーバーとクライアントの不一致（Hydration Error）を防ぐ
+  if (!isDataLoaded && typeof window !== 'undefined') {
+      return <div className="min-h-screen bg-slate-50 flex items-center justify-center text-slate-400">Loading...</div>;
+  }
 
   return (
     <div className={`min-h-screen bg-slate-50 p-4 font-sans text-slate-900 transition-colors duration-500 ${isRecording ? "bg-rose-50" : ""}`}>
