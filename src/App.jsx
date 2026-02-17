@@ -91,7 +91,7 @@ const scenario2 = {
 const scenario3 = {
   id: "busy_customer_v1",
   title: "③ 忙しいお客様",
-  targetId: 13, // 長文採点ターゲット
+  targetId: 13, 
   targetText: "特にこちらのお家みたいに結構オール電化とかで、これだけ電気代を1万円以上とか払っているご家庭は聞いておいてよかったっておっしゃる方とか正直多かった。もちろん、聞いてもらったからといってすぐやってくださいっていう話でもなかったんで、皆さんお気軽に聞いていただけた。まずは参考程度に。次の日曜日とか朝だと9時頃ならいらっしゃりそうですかね？",
   script: [
     {
@@ -147,10 +147,59 @@ const scenario3 = {
   initialUnlock: [1, 3, 5, 7, 9, 11, 13, 15], // 全部解放
 };
 
+// --- コース4：蓄電池「高い・断った」 ---
+const scenario4 = {
+  id: "battery_refusal_v1",
+  title: "④ 蓄電池「高い」への切り返し",
+  targetId: 9, // 長文採点ターゲット（差別化トーク）
+  targetText: "詳しく話しを聞いてみると、前に聞いた会社さんが、取り扱いのメーカーが2社、３社しか取り扱いがなくて、しかもその会社の売りたい値段高めの大きなタイプの蓄電池ばかりをお勧めしている会社も多いで、そういった会社さんでお話聞かれたかたが、前に聞いたけど、高かったとか、負担がでたって仰られる方が多かったんです。うちほうが、今○○さんにも入らせて貰っている事もあって、取り扱いのメーカーが30メーカー以上ありまして、その中からおうちの電気の使い方とか太陽光の発電量とかにぴったりのメーカーをさがさして貰うと、全然負担なくできたとか、前聞いた時より全然安かったという方が多かったんです。ご主人のところとかも、すごくいい太陽光を使っていて、発電もよくされていらっしゃいますし、ちょうど設置から10年も過ぎているタイミングですので。過去にそういう話を聞いたことがある方が逆に『うちで聞いておいてよかったわ』とおっしゃる方が多かったので。",
+  script: [
+    {
+      id: 1, role: "appointer", label: "アポインター①",
+      text: "1万円以上使われているのであれば聞いていただければと思うのですが、もしこういったお話を聞いていただくとしたら、お話し聞きやすいのは平日と土日だとどちらの方がご都合いいですか？",
+    },
+    { id: 2, role: "customer", label: "お客様", text: "うん。でも蓄電池の話はもういい。もう何回か聞いたけどやらない。" },
+    {
+      id: 3, role: "appointer", label: "アポインター②",
+      text: "あ、そうだったんですね。ちなみに、そのお話とかっていつ頃聞かれましたか？",
+    },
+    { id: 4, role: "customer", label: "お客様", text: "いや、もうね、訪問販売でしょっちゅう来るから。" },
+    {
+      id: 5, role: "appointer", label: "アポインター③",
+      text: "そうなんですね。この辺り、すごく多いらしいですね。さっきの方も『しょっちゅう来るよ』とおっしゃってましたので。",
+    },
+    { id: 6, role: "customer", label: "お客様", text: "考えたこともあるけどね。もう値段高いし、全然そんなの無理かなっていう話になって、もううちはやらないって決めたから。" },
+    {
+      id: 7, role: "appointer", label: "アポインター④",
+      text: "あ、そうだったんですね。じゃあ結構詳しくお話を聞かれて、『結構負担が出ちゃったな』という感じだったということですかね。",
+    },
+    { id: 8, role: "customer", label: "お客様", text: "うん。なんかすごい高くてとてもじゃないわと思って。" },
+    {
+      id: 9, role: "appointer", label: "アポインター⑤",
+      text: `そうだったんですね。 ちょうどさっきの方もそうだったんですけど前に話を聞いて負担がでたからやめたと言ってたんですが\n\n詳しく話しを聞いてみると、前に聞いた会社さんが、取り扱いのメーカーが2社、３社しか取り扱いがなくて、しかもその会社の売りたい値段高めの大きなタイプの蓄電池ばかりをお勧めしている会社も多いで、そういった会社さんでお話聞かれたかたが、前に聞いたけど、高かったとか、負担がでたって仰られる方が多かったんです。\n\nうちほうが、今○○さんにも入らせて貰っている事もあって、取り扱いのメーカーが30メーカー以上ありまして、その中からおうちの電気の使い方とか太陽光の発電量とかにぴったりのメーカーをさがさして貰うと、全然負担なくできたとか、前聞いた時より全然安かったという方が多かったんです。\n\nご主人のところとかも、すごくいい太陽光を使っていて、発電もよくされていらっしゃいますし、ちょうど設置から10年も過ぎているタイミングですので。過去にそういう話を聞いたことがある方が逆に『うちで聞いておいてよかったわ』とおっしゃる方が多かったので。`,
+    },
+    { id: 10, role: "customer", label: "お客様", text: "うん。" },
+    {
+      id: 11, role: "appointer", label: "アポインター⑥",
+      text: "そういうことであれば、一度聞いておいていただいた方がいいかなとは思うんですけど。 もし仮にこういうお話を聞かれるとしたら、平日か土日かと言われたら、どちらの方がいらっしゃることが多いですか？",
+    },
+  ],
+  keywords: {
+    1: { must: ["1万円", "平日", "土日", "都合"], ng: ["あのー", "えっと"] },
+    3: { must: ["いつ頃", "聞かれました"], ng: [] },
+    5: { must: ["この辺り", "多い", "さっきの方", "しょっちゅう来る"], ng: [] },
+    7: { must: ["詳しく", "負担が出ちゃった"], ng: [] },
+    9: { must: ["メーカー", "2社", "3社", "高い", "30メーカー以上", "ぴったり", "負担なく", "安かった", "発電", "10年", "聞いておいてよかった"], ng: ["無理", "売りたい"] },
+    11: { must: ["聞いておいて", "仮に", "平日", "土日", "いらっしゃる"], ng: [] },
+  },
+  initialUnlock: [1, 3, 5, 7, 9, 11], // 全部解放
+};
+
 const scenarios = {
   "course1": scenario1,
   "course2": scenario2,
   "course3": scenario3,
+  "course4": scenario4,
 };
 
 // ==========================================
@@ -168,25 +217,11 @@ export default function App() {
             <BookOpen size={20} />
             <span className="text-sm">暗記突破AI</span>
           </div>
-          <div className="flex bg-slate-100 p-1 rounded-lg overflow-x-auto w-full max-w-full justify-center">
-            <button
-              onClick={() => setCurrentCourse("course1")}
-              className={`whitespace-nowrap text-[10px] font-bold px-3 py-1.5 rounded-md transition-all ${currentCourse === "course1" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}
-            >
-              ①スマートハウス
-            </button>
-            <button
-              onClick={() => setCurrentCourse("course2")}
-              className={`whitespace-nowrap text-[10px] font-bold px-3 py-1.5 rounded-md transition-all ${currentCourse === "course2" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}
-            >
-              ②奥様決済
-            </button>
-            <button
-              onClick={() => setCurrentCourse("course3")}
-              className={`whitespace-nowrap text-[10px] font-bold px-3 py-1.5 rounded-md transition-all ${currentCourse === "course3" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}
-            >
-              ③忙しい
-            </button>
+          <div className="flex bg-slate-100 p-1 rounded-lg overflow-x-auto w-full max-w-full justify-start md:justify-center">
+            <button onClick={() => setCurrentCourse("course1")} className={`whitespace-nowrap text-[10px] font-bold px-3 py-1.5 rounded-md transition-all ${currentCourse === "course1" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>①スマートハウス</button>
+            <button onClick={() => setCurrentCourse("course2")} className={`whitespace-nowrap text-[10px] font-bold px-3 py-1.5 rounded-md transition-all ${currentCourse === "course2" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>②奥様決済</button>
+            <button onClick={() => setCurrentCourse("course3")} className={`whitespace-nowrap text-[10px] font-bold px-3 py-1.5 rounded-md transition-all ${currentCourse === "course3" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>③忙しい</button>
+            <button onClick={() => setCurrentCourse("course4")} className={`whitespace-nowrap text-[10px] font-bold px-3 py-1.5 rounded-md transition-all ${currentCourse === "course4" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>④蓄電池高い</button>
           </div>
         </div>
       </div>
