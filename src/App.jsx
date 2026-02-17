@@ -6,25 +6,21 @@ import {
   Sparkles, AlertCircle, TrendingUp, Check, Volume2, ArrowRightLeft
 } from "lucide-react";
 
-// 音声ファイルの指定（もし model_2.m4a があればそれもここで読み込めます）
-// ⚠️ publicフォルダに入れた場合は、ここのimportは消して、下のデータの audio: "/model_1.m4a" だけでもOKです
-// import audioFile1 from "./model_1.m4a"; 
-
 // ==========================================
-// 📜 データエリア：ここに台本を並べています
+// 📜 データエリア
 // ==========================================
 
 // --- コース1：スマートハウス ---
 const scenario1 = {
   id: "smart_house_v1",
   title: "① スマートハウス",
-  targetId: 5, // 長文採点するID
+  targetId: 5,
   targetText: "蓄電池と太陽光で電気を作って、貯めて、光熱費を払わない。新築は義務化、２軒に1軒で増えている。今建っている住宅でも検討されている方が増えているんですよね。。",
   script: [
     {
       id: 1, role: "appointer", label: "アポインター①",
       text: "今回、〇〇さんの場所をお借りして、負担なくスマートハウスにできる施工様募集をさせてもらってるんですが、スマートハウスってご存知ですか？",
-      audio: "/model_1.m4a", // 📢 publicフォルダに入れた音声
+      audio: "/model_1.m4a", 
     },
     { id: 2, role: "customer", label: "お客様", text: "いや、ま、ちょっと忙しいんで大丈夫です。はい。" },
     {
@@ -42,14 +38,14 @@ const scenario1 = {
     3: { must: ["すいません", "すぐ終わ", "ちなみに", "ご存知"], ng: ["契約"] },
     5: { must: ["蓄電池", "太陽光", "作って", "貯めて", "払わない", "新築", "義務", "２軒に1軒", "増えて", "今年", "検討"], ng: ["難しい"] },
   },
-  initialUnlock: [1, 3, 5], // 最初から開けておく行
+  initialUnlock: [1, 3, 5], // 最初から全部解放
 };
 
 // --- コース2：奥様決済 ---
 const scenario2 = {
   id: "okusan_v1",
   title: "② 奥様決済・不在",
-  targetId: 9, // 長文採点するID
+  targetId: 9,
   targetText: "4名様ご家族で電気代が1万円を超えている。オール電化で聞いておいてよかったという方が多かった。絶対にすぐやってという話ではない。日曜日でしたら午前と午後、どちらがいらっしゃる事が多いですか？",
   script: [
     {
@@ -64,7 +60,8 @@ const scenario2 = {
       text: "そうですよね、やっぱり奥様に聞かないとわからないという方が多かったんですけど、今のお話を私から奥様にするのが難しいと言われる方が多かったので、奥様がいらっしゃる時にお話しさせて頂いて、まずは今させて頂いたこのお話だけさせて頂いているんです。\n\nご主人様の所ですと結構電気使われているので、一度、一緒に聞いて頂いたほうがいいと思うんですけど、ちなみにお2人で聞けるとしたら平日と土日でしたらどちらがご都合いいですか？",
     },
     { id: 6, role: "customer", label: "お客様", text: "いつもパートに出てるから、やっぱり平日は仕事でいない感じですね" },
-    { id: 7, role: "appointer", label: "アポインター④", text: "そうですか。それでしたら土日の方がよろしいかと思うのですが、土曜日と日曜日でしたら、どちらがいらっしゃる可能性が高いでしょうか？" },
+    { id: 7, role: "appointer", label: "アポインター④", text: "そうですか。それでしたら土日の方がよろしいかと思うのですが、土曜日と日曜日でしたら、どちらがいらっしゃる可能性が高いでしょうか？",
+    },
     { id: 8, role: "customer", label: "お客様", text: "どちらかと言うと…出かけるとしたら日曜日かな。でも日曜日のいつかと言われても奥さんの予定まで細かくは分からないな" },
     {
       id: 9, role: "appointer", label: "アポインター⑤",
@@ -87,7 +84,7 @@ const scenario2 = {
     13: { must: ["6時", "いらっしゃいますか"], ng: [] },
     15: { must: ["30分", "簡単", "知って", "担当", "3点"], ng: [] },
   },
-  initialUnlock: [1], // 最初は1だけ解放
+  initialUnlock: [1, 3, 5, 7, 9, 11, 13, 15], // ✅ ここを変更！最初から全部解放
 };
 
 const scenarios = {
@@ -96,7 +93,7 @@ const scenarios = {
 };
 
 // ==========================================
-// 🎮 メインアプリ（メニュー）
+// 🎮 メインアプリ
 // ==========================================
 export default function App() {
   const [currentCourse, setCurrentCourse] = useState("course1");
@@ -127,9 +124,6 @@ export default function App() {
         </div>
       </div>
 
-      {/* key={currentCourse} をつけることで、コースが変わるたびに
-        中身の状態（スコアやスクロール位置）をリセットして新しく作り直します
-      */}
       <TrainingSession 
         key={currentCourse} 
         data={scenarios[currentCourse]} 
@@ -139,7 +133,7 @@ export default function App() {
 }
 
 // ==========================================
-// 🏋️‍♂️ 練習セッション（中身）
+// 🏋️‍♂️ 練習セッション
 // ==========================================
 function TrainingSession({ data }) {
   const { id: scenarioId, title, script, keywords, targetId, targetText, initialUnlock } = data;
@@ -501,16 +495,6 @@ function TrainingSession({ data }) {
             </div>
           );
         })}
-      </div>
-
-      <div className="bg-white p-4 rounded-3xl shadow-sm border border-slate-200 mb-6">
-        <div className="flex gap-2 justify-between items-center">
-          <div className="text-xs text-slate-500 font-bold">暗記補助</div>
-          <div className="flex gap-2">
-            <button onClick={hideAppLines} className="px-3 py-2 rounded-xl bg-indigo-50 text-indigo-700 border border-indigo-100 text-xs font-bold hover:bg-indigo-100 inline-flex items-center gap-1 active:scale-95 transition-transform"><EyeOff size={14} /> アポを隠す</button>
-            <button onClick={showAll} className="px-3 py-2 rounded-xl bg-slate-50 text-slate-700 border border-slate-200 text-xs font-bold hover:bg-slate-100 inline-flex items-center gap-1 active:scale-95 transition-transform"><Eye size={14} /> 全て表示</button>
-          </div>
-        </div>
       </div>
 
       <button onClick={resetAll} className="w-full py-4 text-slate-400 text-xs font-bold flex items-center justify-center gap-1 hover:text-rose-500 transition-colors"><Trash2 size={14} /> このコースのデータを初期化</button>
