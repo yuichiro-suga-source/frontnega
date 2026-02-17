@@ -14,8 +14,12 @@ import {
   AlertCircle,
   TrendingUp,
   Check,
-  Volume2, // 📢 音声アイコンを追加
+  Volume2, // 📢 音声アイコン
 } from "lucide-react";
+
+// 👇 ここで音声ファイルを読み込みます！
+// もしファイル名が違うとエラーになるので注意！
+import audioFile1 from "./model_1.m4a"; 
 
 export default function App() {
   // ===== 設定・状態 =====
@@ -47,14 +51,13 @@ export default function App() {
   const lineRefs = useRef({});
 
   // ===== 台本データ =====
-  // ⚠️ audioFile: "./model_1.m4a" のように、アップロードしたファイル名を書きます
   const scriptData = [
     {
       id: 1,
       role: "appointer",
       label: "アポインター①",
       text: "今回、〇〇さんの場所をお借りして、負担なくスマートハウスにできる施工様募集をさせてもらってるんですが、スマートハウスってご存知ですか？",
-      audioFile: "./model_1.m4a", // ← ここにファイル名を書く！
+      audio: audioFile1, // 📢 ここで音声をセット！
     },
     { id: 2, role: "customer", label: "お客様", text: "いや、ま、ちょっと忙しいんで大丈夫です。はい。" },
     {
@@ -62,7 +65,6 @@ export default function App() {
       role: "appointer",
       label: "アポインター②",
       text: "ああ、すいません。すぐ終わりますんで。\n\nちなみにスマートハウスはご存知でした？",
-      // audioFile: "./model_3.m4a", // 音声ファイルをアップしたらコメントを外す
     },
     { id: 4, role: "customer", label: "お客様", text: "いや、あんまわかんないですけど。" },
     {
@@ -77,7 +79,6 @@ export default function App() {
 
 最近はかなり電気代が上がってきたというのもあり、今建っている住宅でも電気代金が○円以上の方で、検討されている方が増えているんですよね。
 その理由がニュースとかでもご覧になったこともあると思うんですけど、電気代が上がってきているからなんです。`,
-      // audioFile: "./model_5.m4a", // 音声ファイルをアップしたらコメントを外す
     },
   ];
 
@@ -134,6 +135,13 @@ export default function App() {
   // ===== お手本再生 =====
   const playModelAudio = (file, id) => {
     if (!file) return;
+    
+    // 録音中なら止める
+    if (isRecording) {
+      alert("録音中は再生できません");
+      return;
+    }
+
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current = null;
@@ -142,10 +150,17 @@ export default function App() {
       setIsPlayingId(null);
       return;
     }
+    
     const audio = new Audio(file);
     audioRef.current = audio;
     setIsPlayingId(id);
-    audio.play().catch(e => alert("音声ファイルの再生に失敗しました。\nファイル名が正しいか確認してください。"));
+    
+    audio.play().catch(e => {
+      console.error(e);
+      alert("音声の再生に失敗しました。ファイル形式などを確認してください。");
+      setIsPlayingId(null);
+    });
+    
     audio.onended = () => setIsPlayingId(null);
   };
 
@@ -220,7 +235,8 @@ export default function App() {
     setErrorMsg(null); setPermissionError(false); setScore(null); setPraise(null); setRecognizedText("");
     accumulatedFinalRef.current = ""; sessionFinalRef.current = "";
     setIsRecording(true); isRecordingRef.current = true; recordStartAtRef.current = Date.now();
-    if(audioRef.current) { audioRef.current.pause(); setIsPlayingId(null); } // 録音開始時に再生停止
+    // 録音開始したら音声再生は止める
+    if(audioRef.current) { audioRef.current.pause(); setIsPlayingId(null); }
     try { recognitionRef.current.start(); } catch { try { recognitionRef.current.stop(); setTimeout(() => recognitionRef.current.start(), 100); } catch {} }
   };
 
@@ -243,6 +259,7 @@ export default function App() {
     const prev = (historyRef.current || []).find((h) => h.lineId === activeLineId) || null;
     setScore(res);
     setHistory((prevArr) => [{ ts: Date.now(), lineId: activeLineId, total: res.total, hits: res.hits, fillersCount: res.fillersCount, cps: res.cps }, ...prevArr].slice(0, 100));
+    // 合格したら自動チェック（お好み）
     if (res.total >= 80) setCheckedIds(prev => new Set(prev).add(activeLineId));
     const p = makePraise({ res, prev });
     setPraise(p);
@@ -383,18 +400,20 @@ export default function App() {
             const isChecked = checkedIds.has(item.id);
 
             return (
-              <div key={item.id} ref={(el) => (lineRefs.current[item.id] = el)} className={`p-4 rounded-2xl border-2 transition-all duration-300 ${isActive && !locked ? "border-indigo-500 bg-white shadow-md ring-4 ring-indigo-50 scale-[1.02]" : "border-slate-100 bg-white"} ${locked ? "opacity-60 grayscale" : ""} ${isChecked ? "bg-emerald-50/50 border-emerald-100" : ""}`}>
+              <div key={item.id} ref={(el) => (lineRefs.current[item.id] = el)} className={`p-4 rounded-2xl border-2 transition-all duration-300 ${isActive && !locked ? "border-indigo-500 bg-white shadow-md ring-4 ring-indigo-50 scale-[1.02]" : "border-slate-100 bg-white"} ${locked ? "opacity-60 grayscale" : ""} ${isChecked && isApp ? "bg-emerald-50/50 border-emerald-100" : ""}`}>
                 <div className="flex justify-between mb-3 items-center">
                   <span className={`text-[10px] font-bold px-2.5 py-1 rounded-md ${isApp ? "bg-indigo-100 text-indigo-700" : "bg-slate-100 text-slate-500"}`}>{item.label}</span>
                   <div className="flex items-center gap-2">
                     {locked && <Lock size={14} className="text-slate-400" />}
-                    {/* 👇 お手本ボタン 👇 */}
-                    {isApp && !locked && item.audioFile && (
-                      <button onClick={() => playModelAudio(item.audioFile, item.id)} className={`text-[10px] px-2.5 py-1.5 rounded-lg border font-bold inline-flex items-center gap-1 active:scale-95 ${isPlayingId === item.id ? "bg-amber-100 text-amber-700 border-amber-200 animate-pulse" : "bg-white text-slate-500 border-slate-200"}`}>
+                    
+                    {/* 👇 お手本ボタン（アポインターのみ） 👇 */}
+                    {isApp && !locked && item.audio && (
+                      <button onClick={() => playModelAudio(item.audio, item.id)} className={`text-[10px] px-2.5 py-1.5 rounded-lg border font-bold inline-flex items-center gap-1 active:scale-95 ${isPlayingId === item.id ? "bg-amber-100 text-amber-700 border-amber-200 animate-pulse" : "bg-white text-slate-500 border-slate-200"}`}>
                         {isPlayingId === item.id ? <StopCircle size={12} fill="currentColor"/> : <Volume2 size={12}/>}
                         お手本
                       </button>
                     )}
+
                     {isApp && !locked && (
                       <button onClick={() => { setActiveLineId(item.id); setScore(null); setPraise(null); setRecognizedText(""); setErrorMsg(null); }} className="text-[10px] px-2.5 py-1.5 rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-100 font-bold inline-flex items-center gap-1 active:scale-95">
                         <Star size={12} fill="currentColor" /> 練習
@@ -410,7 +429,7 @@ export default function App() {
                     )}
                   </div>
                 </div>
-                <div onClick={() => { if (!locked) toggleHide(item.id); }} className={`relative text-sm leading-relaxed rounded-xl p-3 border cursor-pointer min-h-[3rem] flex items-center ${isApp ? "bg-indigo-50/30 border-indigo-100/50" : "bg-slate-50 border-slate-100"} ${isChecked && !hidden ? "line-through text-slate-400 opacity-70" : ""}`}>
+                <div onClick={() => { if (!locked) toggleHide(item.id); }} className={`relative text-sm leading-relaxed rounded-xl p-3 border cursor-pointer min-h-[3rem] flex items-center ${isApp ? "bg-indigo-50/30 border-indigo-100/50" : "bg-slate-50 border-slate-100"} ${isChecked && !hidden && isApp ? "line-through text-slate-400 opacity-70" : ""}`}>
                   {locked ? <div className="text-slate-400 text-xs w-full text-center">ロックされています</div> : hidden ? <div className="w-full text-center text-indigo-300 font-bold text-xs"><EyeOff size={16} className="inline mr-1" />タップして確認</div> : <div className="text-slate-700 whitespace-pre-wrap">{item.text}</div>}
                 </div>
               </div>
