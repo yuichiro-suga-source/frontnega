@@ -12,13 +12,18 @@ import {
   Eye,
   Sparkles,
   AlertCircle,
-  TrendingUp, // ← これが無いとエラーになるので追加しました！
+  TrendingUp,
+  Check,
 } from "lucide-react";
 
 export default function App() {
   // ===== 設定・状態 =====
   const [displayScale, setDisplayScale] = useState("10"); // "10" | "100"
   const [hiddenIds, setHiddenIds] = useState(new Set());
+  
+  // チェックリストの状態
+  const [checkedIds, setCheckedIds] = useState(new Set());
+
   const [scoreMode5, setScoreMode5] = useState("core"); // "core" | "full"
 
   const [isRecording, setIsRecording] = useState(false);
@@ -42,7 +47,7 @@ export default function App() {
   // 自動スクロール用
   const lineRefs = useRef({});
 
-  // ===== 台本データ（新しい文章に更新済み！） =====
+  // ===== 台本データ =====
   const scriptData = [
     {
       id: 1,
@@ -87,7 +92,7 @@ export default function App() {
     },
   };
 
-  // ===== ステージ管理（Web対応）=====
+  // ===== ステージ管理・保存 =====
   const [unlockedAppLines, setUnlockedAppLines] = useState(new Set([1, 3, 5]));
   const [history, setHistory] = useState([]);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
@@ -96,8 +101,13 @@ export default function App() {
     if (typeof window === "undefined") return;
     try {
       setUnlockedAppLines(new Set([1, 3, 5]));
+      
       const rawHistory = localStorage.getItem("toppa_history_v7");
       if (rawHistory) setHistory(JSON.parse(rawHistory));
+
+      const rawChecked = localStorage.getItem("toppa_checked_v7");
+      if (rawChecked) setCheckedIds(new Set(JSON.parse(rawChecked)));
+
     } catch {}
     setIsDataLoaded(true);
   }, []);
@@ -108,7 +118,8 @@ export default function App() {
   useEffect(() => {
     if (!isDataLoaded) return;
     localStorage.setItem("toppa_history_v7", JSON.stringify(history));
-  }, [history, isDataLoaded]);
+    localStorage.setItem("toppa_checked_v7", JSON.stringify(Array.from(checkedIds)));
+  }, [history, checkedIds, isDataLoaded]);
 
   // ===== 自動スクロール =====
   useEffect(() => {
@@ -312,13 +323,16 @@ export default function App() {
     setScore(res);
     setHistory((prevArr) => [{ ts: Date.now(), lineId: activeLineId, total: res.total, hits: res.hits, fillersCount: res.fillersCount, cps: res.cps }, ...prevArr].slice(0, 100));
 
+    if (res.total >= 80) {
+      setCheckedIds(prev => new Set(prev).add(activeLineId));
+    }
+
     const p = makePraise({ res, prev });
     setPraise(p);
     if (praiseTimerRef.current) clearTimeout(praiseTimerRef.current);
     praiseTimerRef.current = setTimeout(() => setPraise(null), 6000);
   };
 
-  // UI操作系
   const toggleHide = (id) => {
     setHiddenIds((prev) => {
       const next = new Set(prev);
@@ -334,6 +348,16 @@ export default function App() {
   };
 
   const showAll = () => setHiddenIds(new Set());
+
+  // チェック切り替え（アポインターのみ）
+  const toggleCheck = (id) => {
+    setCheckedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   const oneFix = useMemo(() => {
     if (!score) return null;
@@ -359,10 +383,12 @@ export default function App() {
     if (!confirm("全リセットしますか？")) return;
     if (typeof window !== "undefined") {
       localStorage.removeItem("toppa_history_v7");
+      localStorage.removeItem("toppa_checked_v7");
     }
     setUnlockedAppLines(new Set([1, 3, 5]));
     setHistory([]);
     setHiddenIds(new Set());
+    setCheckedIds(new Set());
     setScore(null);
     setPraise(null);
     setRecognizedText("");
@@ -417,6 +443,8 @@ export default function App() {
               <span className="font-black text-xl flex items-center gap-2">
                 #{activeLineId} {headerRoleName}
                 {isAppLine(activeLineId) && !unlockedAppLines.has(activeLineId) && <Lock size={16} className="text-slate-400" />}
+                {/* ターゲット行にもチェック済ならマークを出す */}
+                {checkedIds.has(activeLineId) && <span className="text-emerald-500">✅</span>}
               </span>
               <div className="flex items-center gap-2 mt-1">
                 <button onClick={() => setDisplayScale("10")} className={`text-[10px] px-2 py-1 rounded-lg border font-bold ${displayScale === "10" ? "bg-indigo-600 text-white border-indigo-600" : "bg-white text-slate-600 border-slate-200"}`}>/10</button>
@@ -532,26 +560,29 @@ export default function App() {
             const locked = isApp && !unlockedAppLines.has(item.id);
             const hidden = hiddenIds.has(item.id);
             const isActive = activeLineId === item.id;
+            const isChecked = checkedIds.has(item.id);
 
             return (
               <div
                 key={item.id}
                 ref={(el) => (lineRefs.current[item.id] = el)}
-                className={`p-4 rounded-2xl border-2 transition-all duration-300 ${isActive && !locked ? "border-indigo-500 bg-white shadow-md ring-4 ring-indigo-50 scale-[1.02]" : "border-slate-100 bg-white"} ${locked ? "opacity-60 grayscale" : ""}`}
+                className={`p-4 rounded-2xl border-2 transition-all duration-300 ${isActive && !locked ? "border-indigo-500 bg-white shadow-md ring-4 ring-indigo-50 scale-[1.02]" : "border-slate-100 bg-white"} ${locked ? "opacity-60 grayscale" : ""} ${isChecked ? "bg-emerald-50/50 border-emerald-100" : ""}`}
               >
                 <div className="flex justify-between mb-3 items-center">
                   <span className={`text-[10px] font-bold px-2.5 py-1 rounded-md ${isApp ? "bg-indigo-100 text-indigo-700" : "bg-slate-100 text-slate-500"}`}>{item.label}</span>
 
                   <div className="flex items-center gap-2">
                     {locked && <Lock size={14} className="text-slate-400" />}
+                    
                     {isApp && !locked && (
                       <button
                         onClick={() => { setActiveLineId(item.id); setScore(null); setPraise(null); setRecognizedText(""); setErrorMsg(null); }}
                         className="text-[10px] px-2.5 py-1.5 rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-100 font-bold inline-flex items-center gap-1 active:scale-95"
                       >
-                        <Star size={12} fill="currentColor" /> 練習する
+                        <Star size={12} fill="currentColor" /> 練習
                       </button>
                     )}
+                    
                     <button
                       disabled={locked}
                       onClick={() => toggleHide(item.id)}
@@ -560,12 +591,30 @@ export default function App() {
                       {hidden ? <Eye size={12} /> : <EyeOff size={12} />}
                       {hidden ? "見る" : "隠す"}
                     </button>
+
+                    {/* 🔥 追加：チェック完了ボタン (アポインターのみ表示) */}
+                    {isApp && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleCheck(item.id);
+                        }}
+                        className={`text-[10px] px-2.5 py-1.5 rounded-lg border font-bold inline-flex items-center gap-1 active:scale-95 transition-transform ${
+                          isChecked
+                            ? "bg-emerald-500 text-white border-emerald-500 shadow-md"
+                            : "bg-white border-slate-200 text-slate-400 hover:bg-slate-50"
+                        }`}
+                      >
+                        {isChecked ? "✅" : "未"}
+                      </button>
+                    )}
+
                   </div>
                 </div>
 
                 <div
                   onClick={() => { if (!locked) toggleHide(item.id); }}
-                  className={`relative text-sm leading-relaxed rounded-xl p-3 border cursor-pointer min-h-[3rem] flex items-center ${isApp ? "bg-indigo-50/30 border-indigo-100/50" : "bg-slate-50 border-slate-100"}`}
+                  className={`relative text-sm leading-relaxed rounded-xl p-3 border cursor-pointer min-h-[3rem] flex items-center ${isApp ? "bg-indigo-50/30 border-indigo-100/50" : "bg-slate-50 border-slate-100"} ${isChecked && !hidden ? "line-through text-slate-400 opacity-70" : ""}`}
                 >
                   {locked ? (
                     <div className="text-slate-400 text-xs w-full text-center">ロックされています</div>
