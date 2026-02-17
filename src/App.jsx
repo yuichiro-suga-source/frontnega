@@ -38,7 +38,7 @@ const scenario1 = {
     3: { must: ["すいません", "すぐ終わ", "ちなみに", "ご存知"], ng: ["契約"] },
     5: { must: ["蓄電池", "太陽光", "作って", "貯めて", "払わない", "新築", "義務", "２軒に1軒", "増えて", "今年", "検討"], ng: ["難しい"] },
   },
-  initialUnlock: [1, 3, 5], // 最初から全部解放
+  initialUnlock: [1, 3, 5], 
 };
 
 // --- コース2：奥様決済 ---
@@ -84,12 +84,73 @@ const scenario2 = {
     13: { must: ["6時", "いらっしゃいますか"], ng: [] },
     15: { must: ["30分", "簡単", "知って", "担当", "3点"], ng: [] },
   },
-  initialUnlock: [1, 3, 5, 7, 9, 11, 13, 15], // ✅ ここを変更！最初から全部解放
+  initialUnlock: [1, 3, 5, 7, 9, 11, 13, 15],
+};
+
+// --- コース3：忙しいお客様 ---
+const scenario3 = {
+  id: "busy_customer_v1",
+  title: "③ 忙しいお客様",
+  targetId: 13, // 長文採点ターゲット
+  targetText: "特にこちらのお家みたいに結構オール電化とかで、これだけ電気代を1万円以上とか払っているご家庭は聞いておいてよかったっておっしゃる方とか正直多かった。もちろん、聞いてもらったからといってすぐやってくださいっていう話でもなかったんで、皆さんお気軽に聞いていただけた。まずは参考程度に。次の日曜日とか朝だと9時頃ならいらっしゃりそうですかね？",
+  script: [
+    {
+      id: 1, role: "appointer", label: "アポインター①",
+      text: "まあ、電気代が1万円以上は使っていらっしゃるのであれば、ぜひ聞いておいていただければなと思うんですけど。\n\nもし仮にこのお話を聞いていただくとしたら、平日か土日かと言われたりすると、どちらの方がご在宅されているイメージですかね？",
+    },
+    { id: 2, role: "customer", label: "お客様", text: "いや、もう今めっちゃ年末で忙しいから。" },
+    {
+      id: 3, role: "appointer", label: "アポインター②",
+      text: "そうですよね、お忙しいですよね。まあ、全然イメージの話で大丈夫なんですけど、平日か土日かでしたら、どちらの方がご在宅のことは多いですか？",
+    },
+    { id: 4, role: "customer", label: "お客様", text: "いや、もうね、両方ほとんど家にいないんで。忙しくて。" },
+    {
+      id: 5, role: "appointer", label: "アポインター③",
+      text: "そうですよね。お忙しいですもんね。じゃあ、お休みの日とかって決まっていたりとかっていうのは…？",
+    },
+    { id: 6, role: "customer", label: "お客様", text: "まあ、日曜日だけ。もう1日しかないから忙しいんよね。" },
+    {
+      id: 7, role: "appointer", label: "アポインター④",
+      text: "1日しかないんですか。それはお忙しいですよね。\n\n基本的に日曜日とかでも、多分お出かけとかされてらっしゃるかなとは思うんですけど、例えばご在宅だとしたら、結構『朝イチ』とかの方が多いかなとか、例えば『夕方』とかの方が多いかなとか、どっちの方かとかってイメージあったりされますか？",
+    },
+    { id: 8, role: "customer", label: "お客様", text: "いや、もうそれも日によるかな。" },
+    {
+      id: 9, role: "appointer", label: "アポインター⑤",
+      text: "まあ、そうですよね。\n\n例えば結構皆さん、お出かけとかもされるとは思うんですけど、『朝の9時ぐらいとかであれば、まだ家にいるから、30分ぐらいだったらいいよ』って方も多かったんですけど、普段お出かけとかって、どれぐらいの時間からされます？",
+    },
+    { id: 10, role: "customer", label: "お客様", text: "いや、もうその時その時かな。まあ、そんなすごい朝早くから出ることはあんまりないけど。" },
+    {
+      id: 11, role: "appointer", label: "アポインター⑥",
+      text: "そうだったんですね。とかでしたら、例えば朝の9時ぐらいとかだったら、お家にご在宅されてはいらっしゃるのはいらっしゃる感じですかね？",
+    },
+    { id: 12, role: "customer", label: "お客様", text: "まあ、特に予定なかったらいる時はいるけど。" },
+    {
+      id: 13, role: "appointer", label: "アポインター⑦",
+      text: `ありがとうございます。\n\nまあ、特にこちらのお家みたいに結構オール電化とかで、これだけ電気代を1万円以上とか払っているご家庭は『聞いておいてよかったわ』っておっしゃる方とか正直多かったんで。\n\nもちろん、聞いてもらったからといって『すぐやってください』っていう話でもなかったんで、皆さんお気軽に聞いていただけたんで。まずはそもそもどういう風になるかとか、参考程度に聞いていただければなと思います。\n\n例えばじゃあ、今のところでいいんですけど、次の日曜日とか朝だと9時頃ならいらっしゃりそうですかね？`,
+    },
+    { id: 14, role: "customer", label: "お客様", text: "うん、まあ、いるけど。" },
+    {
+      id: 15, role: "appointer", label: "アポインター⑧",
+      text: "ありがとうございます。聞いてよかったと言われる方多かったので楽しみに聞いてください。\n\nでは当日は担当が変わりますので、最後に3点だけご記入をお願いいたします",
+    },
+  ],
+  keywords: {
+    1: { must: ["電気代", "1万円", "聞いておいて", "仮に", "平日", "土日", "在宅"], ng: ["あのー"] },
+    3: { must: ["忙しい", "イメージ", "平日", "土日", "在宅"], ng: [] },
+    5: { must: ["忙しい", "お休み", "決まって"], ng: [] },
+    7: { must: ["1日しかない", "忙しい", "日曜日", "お出かけ", "在宅", "朝イチ", "夕方", "イメージ"], ng: [] },
+    9: { must: ["お出かけ", "朝の9時", "30分", "時間"], ng: [] },
+    11: { must: ["朝の9時", "在宅", "いらっしゃる"], ng: [] },
+    13: { must: ["オール電化", "電気代", "1万円", "聞いておいてよかった", "すぐやって", "お気軽", "参考", "日曜日", "朝", "9時頃"], ng: ["無理", "しつこく"] },
+    15: { must: ["聞いてよかった", "楽しみ", "担当", "3点"], ng: [] },
+  },
+  initialUnlock: [1, 3, 5, 7, 9, 11, 13, 15], // 全部解放
 };
 
 const scenarios = {
   "course1": scenario1,
   "course2": scenario2,
+  "course3": scenario3,
 };
 
 // ==========================================
@@ -102,23 +163,29 @@ export default function App() {
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
       {/* ヘッダー切り替えボタン */}
       <div className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200 px-4 py-3 shadow-sm">
-        <div className="max-w-2xl mx-auto flex items-center justify-between">
+        <div className="max-w-2xl mx-auto flex flex-col items-center gap-3">
           <div className="flex items-center gap-2 text-indigo-700 font-black">
             <BookOpen size={20} />
             <span className="text-sm">暗記突破AI</span>
           </div>
-          <div className="flex bg-slate-100 p-1 rounded-lg">
+          <div className="flex bg-slate-100 p-1 rounded-lg overflow-x-auto w-full max-w-full justify-center">
             <button
               onClick={() => setCurrentCourse("course1")}
-              className={`text-xs font-bold px-3 py-1.5 rounded-md transition-all ${currentCourse === "course1" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}
+              className={`whitespace-nowrap text-[10px] font-bold px-3 py-1.5 rounded-md transition-all ${currentCourse === "course1" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}
             >
               ①スマートハウス
             </button>
             <button
               onClick={() => setCurrentCourse("course2")}
-              className={`text-xs font-bold px-3 py-1.5 rounded-md transition-all ${currentCourse === "course2" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}
+              className={`whitespace-nowrap text-[10px] font-bold px-3 py-1.5 rounded-md transition-all ${currentCourse === "course2" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}
             >
               ②奥様決済
+            </button>
+            <button
+              onClick={() => setCurrentCourse("course3")}
+              className={`whitespace-nowrap text-[10px] font-bold px-3 py-1.5 rounded-md transition-all ${currentCourse === "course3" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}
+            >
+              ③忙しい
             </button>
           </div>
         </div>
