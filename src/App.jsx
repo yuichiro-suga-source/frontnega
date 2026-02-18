@@ -20,7 +20,8 @@ const scenario1 = {
     {
       id: 1, role: "appointer", label: "アポインター①",
       text: "今回、〇〇さんの場所をお借りして、負担なくスマートハウスにできる施工様募集をさせてもらってるんですが、スマートハウスってご存知ですか？",
-      // 👇 ここを新しいファイル名（v2）に変えてあります！
+      // 👇 ファイル名はご自身で設定したもの（v2など）に合わせてください！
+      // もし変えていなければそのままでOKです
       audio: "/model_1_v2.m4a", 
     },
     { id: 2, role: "customer", label: "お客様", text: "いや、ま、ちょっと忙しいんで大丈夫です。はい。" },
@@ -283,12 +284,13 @@ export default function App() {
             <BookOpen size={20} />
             <span className="text-sm">暗記突破AI</span>
           </div>
-          <div className="flex bg-slate-100 p-1 rounded-lg overflow-x-auto w-full max-w-full justify-start md:justify-center scrollbar-hide">
-            <button onClick={() => setCurrentCourse("course1")} className={`whitespace-nowrap text-xs font-bold px-4 py-2 rounded-md transition-all ${currentCourse === "course1" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>①スマートハウス</button>
-            <button onClick={() => setCurrentCourse("course2")} className={`whitespace-nowrap text-xs font-bold px-4 py-2 rounded-md transition-all ${currentCourse === "course2" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>②奥様決済</button>
-            <button onClick={() => setCurrentCourse("course3")} className={`whitespace-nowrap text-xs font-bold px-4 py-2 rounded-md transition-all ${currentCourse === "course3" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>③忙しい</button>
-            <button onClick={() => setCurrentCourse("course4")} className={`whitespace-nowrap text-xs font-bold px-4 py-2 rounded-md transition-all ${currentCourse === "course4" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>④蓄電池高い</button>
-            <button onClick={() => setCurrentCourse("course5")} className={`whitespace-nowrap text-xs font-bold px-4 py-2 rounded-md transition-all ${currentCourse === "course5" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>⑤考えてない</button>
+          {/* 👇 ここを変えました！flex-wrap を追加して、入りきらない場合は折り返すようにしました */}
+          <div className="flex flex-wrap bg-slate-100 p-1 rounded-lg w-full justify-center gap-2">
+            <button onClick={() => setCurrentCourse("course1")} className={`whitespace-nowrap text-xs font-bold px-3 py-2 rounded-md transition-all ${currentCourse === "course1" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>①スマートハウス</button>
+            <button onClick={() => setCurrentCourse("course2")} className={`whitespace-nowrap text-xs font-bold px-3 py-2 rounded-md transition-all ${currentCourse === "course2" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>②奥様決済</button>
+            <button onClick={() => setCurrentCourse("course3")} className={`whitespace-nowrap text-xs font-bold px-3 py-2 rounded-md transition-all ${currentCourse === "course3" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>③忙しい</button>
+            <button onClick={() => setCurrentCourse("course4")} className={`whitespace-nowrap text-xs font-bold px-3 py-2 rounded-md transition-all ${currentCourse === "course4" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>④蓄電池高い</button>
+            <button onClick={() => setCurrentCourse("course5")} className={`whitespace-nowrap text-xs font-bold px-3 py-2 rounded-md transition-all ${currentCourse === "course5" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>⑤考えてない</button>
           </div>
         </div>
       </div>
