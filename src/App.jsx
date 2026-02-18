@@ -20,7 +20,7 @@ const scenario1 = {
     {
       id: 1, role: "appointer", label: "アポインター①",
       text: "今回、〇〇さんの場所をお借りして、負担なくスマートハウスにできる施工様募集をさせてもらってるんですが、スマートハウスってご存知ですか？",
-      audio: "/model_1.m4a", // 📢 ①の音声
+      audio: "/model_1_v2.m4a", // 📢 ①の音声
     },
     { id: 2, role: "customer", label: "お客様", text: "いや、ま、ちょっと忙しいんで大丈夫です。はい。" },
     {
