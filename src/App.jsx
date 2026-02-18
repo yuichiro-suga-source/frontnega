@@ -199,7 +199,7 @@ const scenario4 = {
 const scenario5 = {
   id: "not_thinking_v1",
   title: "⑤ 考えていない",
-  targetId: 7, // 長文採点ターゲット（切り返しトーク）
+  targetId: 7, 
   targetText: "言葉さえ知らなかったら考えていなかったという方が多かった。光熱費が上がってきていることは確かに実感しておられてて、何もしなくても払っていかないといけないなら、支払いが減っていくなら考える価値あるかなとおっしゃっていた。オール電化で1万円以上かかっているのであれば、負担なくできるかは情報だけでも知っておいて良かったとおっしゃることは多かった。平日か土日かと言われると、どちらの方がいらっしゃることが多いイメージですかね？",
   script: [
     {
@@ -279,11 +279,11 @@ export default function App() {
             <span className="text-sm">暗記突破AI</span>
           </div>
           <div className="flex bg-slate-100 p-1 rounded-lg overflow-x-auto w-full max-w-full justify-start md:justify-center scrollbar-hide">
-            <button onClick={() => setCurrentCourse("course1")} className={`whitespace-nowrap text-[10px] font-bold px-3 py-1.5 rounded-md transition-all ${currentCourse === "course1" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>①スマートハウス</button>
-            <button onClick={() => setCurrentCourse("course2")} className={`whitespace-nowrap text-[10px] font-bold px-3 py-1.5 rounded-md transition-all ${currentCourse === "course2" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>②奥様決済</button>
-            <button onClick={() => setCurrentCourse("course3")} className={`whitespace-nowrap text-[10px] font-bold px-3 py-1.5 rounded-md transition-all ${currentCourse === "course3" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>③忙しい</button>
-            <button onClick={() => setCurrentCourse("course4")} className={`whitespace-nowrap text-[10px] font-bold px-3 py-1.5 rounded-md transition-all ${currentCourse === "course4" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>④蓄電池高い</button>
-            <button onClick={() => setCurrentCourse("course5")} className={`whitespace-nowrap text-[10px] font-bold px-3 py-1.5 rounded-md transition-all ${currentCourse === "course5" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>⑤考えてない</button>
+            <button onClick={() => setCurrentCourse("course1")} className={`whitespace-nowrap text-xs font-bold px-4 py-2 rounded-md transition-all ${currentCourse === "course1" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>①スマートハウス</button>
+            <button onClick={() => setCurrentCourse("course2")} className={`whitespace-nowrap text-xs font-bold px-4 py-2 rounded-md transition-all ${currentCourse === "course2" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>②奥様決済</button>
+            <button onClick={() => setCurrentCourse("course3")} className={`whitespace-nowrap text-xs font-bold px-4 py-2 rounded-md transition-all ${currentCourse === "course3" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>③忙しい</button>
+            <button onClick={() => setCurrentCourse("course4")} className={`whitespace-nowrap text-xs font-bold px-4 py-2 rounded-md transition-all ${currentCourse === "course4" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>④蓄電池高い</button>
+            <button onClick={() => setCurrentCourse("course5")} className={`whitespace-nowrap text-xs font-bold px-4 py-2 rounded-md transition-all ${currentCourse === "course5" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>⑤考えてない</button>
           </div>
         </div>
       </div>
@@ -556,7 +556,7 @@ function TrainingSession({ data }) {
         <div className="flex justify-between items-start mb-3">
           <div className="flex flex-col">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Target Line</span>
-            <span className="font-black text-xl flex items-center gap-2">
+            <span className="font-black text-2xl flex items-center gap-2">
               #{activeLineId} {isAppLine(activeLineId) ? "自分" : "お客様"}
               {isAppLine(activeLineId) && !unlockedAppLines.has(activeLineId) && <Lock size={16} className="text-slate-400" />}
               {checkedIds.has(activeLineId) && <span className="text-emerald-500">✅</span>}
@@ -567,9 +567,9 @@ function TrainingSession({ data }) {
             </div>
           </div>
           {isRecording ? (
-            <button onClick={handleStop} className="bg-rose-500 text-white px-6 py-3 rounded-2xl font-bold animate-pulse shadow-lg flex items-center gap-2 active:scale-95 transition-transform touch-manipulation z-30"><StopCircle size={20} /> 停止</button>
+            <button onClick={handleStop} className="bg-rose-500 text-white px-6 py-3 rounded-2xl font-bold animate-pulse shadow-lg flex items-center gap-2 active:scale-95 transition-transform touch-manipulation z-30 text-sm"><StopCircle size={20} /> 停止</button>
           ) : (
-            <button onClick={handleStart} className={`px-6 py-3 rounded-2xl font-bold shadow-lg flex items-center gap-2 transition-all active:scale-95 touch-manipulation z-30 ${isAppLine(activeLineId) ? "bg-gradient-to-br from-indigo-500 to-indigo-600 text-white hover:shadow-indigo-200 hover:shadow-xl" : "bg-slate-200 text-slate-400 cursor-not-allowed"}`} disabled={!isAppLine(activeLineId)}><Mic size={20} /> 採点開始</button>
+            <button onClick={handleStart} className={`px-6 py-3 rounded-2xl font-bold shadow-lg flex items-center gap-2 transition-all active:scale-95 touch-manipulation z-30 text-sm ${isAppLine(activeLineId) ? "bg-gradient-to-br from-indigo-500 to-indigo-600 text-white hover:shadow-indigo-200 hover:shadow-xl" : "bg-slate-200 text-slate-400 cursor-not-allowed"}`} disabled={!isAppLine(activeLineId)}><Mic size={20} /> 採点開始</button>
           )}
         </div>
 
@@ -584,7 +584,7 @@ function TrainingSession({ data }) {
           </div>
         )}
 
-        {isRecording && <div className="bg-indigo-50/50 p-4 rounded-xl text-sm mb-4 border border-indigo-100 text-indigo-800 min-h-[60px] flex items-center justify-center text-center">{recognizedText || "話してください..."}</div>}
+        {isRecording && <div className="bg-indigo-50/50 p-4 rounded-xl text-base mb-4 border border-indigo-100 text-indigo-800 min-h-[60px] flex items-center justify-center text-center leading-relaxed">{recognizedText || "話してください..."}</div>}
         
         {praise && (
           <div className={`mb-4 p-4 rounded-2xl border ${praiseStyle(praise.tone)} shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-300`}>
@@ -597,7 +597,7 @@ function TrainingSession({ data }) {
           <div className="bg-white p-0 rounded-2xl">
             <div className="flex items-center justify-between gap-3 mb-4">
               <div className="flex items-end gap-2">
-                <div className="text-5xl font-black text-indigo-900 leading-none tracking-tighter">{formatScore(score.total)}</div>
+                <div className="text-6xl font-black text-indigo-900 leading-none tracking-tighter">{formatScore(score.total)}</div>
                 <div className="text-xs text-indigo-400 font-bold mb-1.5">{displayScale === "10" ? "/10" : "点"}</div>
               </div>
               <div className={`px-4 py-2 rounded-2xl font-black shadow-sm ${rank.cls}`}>{rank.label} <span className="ml-1 text-[10px] opacity-80 font-normal">{rank.sub}</span></div>
@@ -630,30 +630,30 @@ function TrainingSession({ data }) {
           return (
             <div key={item.id} ref={(el) => (lineRefs.current[item.id] = el)} className={`p-4 rounded-2xl border-2 transition-all duration-300 ${isActive && !locked ? "border-indigo-500 bg-white shadow-md ring-4 ring-indigo-50 scale-[1.02]" : "border-slate-100 bg-white"} ${locked ? "opacity-60 grayscale" : ""} ${isChecked && isApp ? "bg-emerald-50/50 border-emerald-100" : ""}`}>
               <div className="flex justify-between mb-3 items-center">
-                <span className={`text-[10px] font-bold px-2.5 py-1 rounded-md ${isApp ? "bg-indigo-100 text-indigo-700" : "bg-slate-100 text-slate-500"}`}>{item.label}</span>
+                <span className={`text-xs font-bold px-2.5 py-1 rounded-md ${isApp ? "bg-indigo-100 text-indigo-700" : "bg-slate-100 text-slate-500"}`}>{item.label}</span>
                 <div className="flex items-center gap-2">
                   {locked && <Lock size={14} className="text-slate-400" />}
                   {isApp && !locked && item.audio && (
-                    <button onClick={() => playModelAudio(item.audio, item.id)} className={`text-[10px] px-2.5 py-1.5 rounded-lg border font-bold inline-flex items-center gap-1 active:scale-95 ${isPlayingId === item.id ? "bg-amber-100 text-amber-700 border-amber-200 animate-pulse" : "bg-white text-slate-500 border-slate-200"}`}>
-                      {isPlayingId === item.id ? <StopCircle size={12} fill="currentColor"/> : <Volume2 size={12}/>} お手本
+                    <button onClick={() => playModelAudio(item.audio, item.id)} className={`text-xs px-2.5 py-1.5 rounded-lg border font-bold inline-flex items-center gap-1 active:scale-95 ${isPlayingId === item.id ? "bg-amber-100 text-amber-700 border-amber-200 animate-pulse" : "bg-white text-slate-500 border-slate-200"}`}>
+                      {isPlayingId === item.id ? <StopCircle size={14} fill="currentColor"/> : <Volume2 size={14}/>} お手本
                     </button>
                   )}
                   {isApp && !locked && (
-                    <button onClick={() => { setActiveLineId(item.id); setScore(null); setPraise(null); setRecognizedText(""); setErrorMsg(null); }} className="text-[10px] px-2.5 py-1.5 rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-100 font-bold inline-flex items-center gap-1 active:scale-95">
-                      <Star size={12} fill="currentColor" /> 練習
+                    <button onClick={() => { setActiveLineId(item.id); setScore(null); setPraise(null); setRecognizedText(""); setErrorMsg(null); }} className="text-xs px-2.5 py-1.5 rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-100 font-bold inline-flex items-center gap-1 active:scale-95">
+                      <Star size={14} fill="currentColor" /> 練習
                     </button>
                   )}
-                  <button disabled={locked} onClick={() => toggleHide(item.id)} className={`text-[10px] px-2.5 py-1.5 rounded-lg border font-bold inline-flex items-center gap-1 active:scale-95 transition-transform ${locked ? "bg-slate-50 border-slate-200 text-slate-300" : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"}`}>
-                    {hidden ? <Eye size={12} /> : <EyeOff size={12} />} {hidden ? "見る" : "隠す"}
+                  <button disabled={locked} onClick={() => toggleHide(item.id)} className={`text-xs px-2.5 py-1.5 rounded-lg border font-bold inline-flex items-center gap-1 active:scale-95 transition-transform ${locked ? "bg-slate-50 border-slate-200 text-slate-300" : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"}`}>
+                    {hidden ? <Eye size={14} /> : <EyeOff size={14} />} {hidden ? "見る" : "隠す"}
                   </button>
                   {isApp && (
-                    <button onClick={(e) => { e.stopPropagation(); toggleCheck(item.id); }} className={`text-[10px] px-2.5 py-1.5 rounded-lg border font-bold inline-flex items-center gap-1 active:scale-95 transition-transform ${isChecked ? "bg-emerald-500 text-white border-emerald-500 shadow-md" : "bg-white border-slate-200 text-slate-400 hover:bg-slate-50"}`}>
+                    <button onClick={(e) => { e.stopPropagation(); toggleCheck(item.id); }} className={`text-xs px-2.5 py-1.5 rounded-lg border font-bold inline-flex items-center gap-1 active:scale-95 transition-transform ${isChecked ? "bg-emerald-500 text-white border-emerald-500 shadow-md" : "bg-white border-slate-200 text-slate-400 hover:bg-slate-50"}`}>
                       {isChecked ? "✅" : "未"}
                     </button>
                   )}
                 </div>
               </div>
-              <div onClick={() => { if (!locked) toggleHide(item.id); }} className={`relative text-sm leading-relaxed rounded-xl p-3 border cursor-pointer min-h-[3rem] flex items-center ${isApp ? "bg-indigo-50/30 border-indigo-100/50" : "bg-slate-50 border-slate-100"} ${isChecked && !hidden && isApp ? "line-through text-slate-400 opacity-70" : ""}`}>
+              <div onClick={() => { if (!locked) toggleHide(item.id); }} className={`relative text-base leading-relaxed rounded-xl p-3 border cursor-pointer min-h-[3rem] flex items-center ${isApp ? "bg-indigo-50/30 border-indigo-100/50" : "bg-slate-50 border-slate-100"} ${isChecked && !hidden && isApp ? "line-through text-slate-400 opacity-70" : ""} ${isActive && !locked ? "text-lg font-medium" : ""}`}>
                 {locked ? <div className="text-slate-400 text-xs w-full text-center">ロックされています</div> : hidden ? <div className="w-full text-center text-indigo-300 font-bold text-xs"><EyeOff size={16} className="inline mr-1" />タップして確認</div> : <div className="text-slate-700 whitespace-pre-wrap">{item.text}</div>}
               </div>
             </div>
