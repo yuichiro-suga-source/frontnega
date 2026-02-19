@@ -314,8 +314,6 @@ function TrainingSession({ data }) {
   const [hiddenIds, setHiddenIds] = useState(new Set());
   const [checkedIds, setCheckedIds] = useState(new Set());
   const [scoreModeCore, setScoreModeCore] = useState("core"); 
-  
-  // 👇 ここが新しく追加した「再生スピード」の記憶です！
   const [playbackRate, setPlaybackRate] = useState(1.0);
 
   const [isRecording, setIsRecording] = useState(false);
@@ -375,10 +373,8 @@ function TrainingSession({ data }) {
     }
   }, [activeLineId]);
 
-  // 👇 スピードを変えるための新しい機能です
   const changePlaybackRate = (rate) => {
     setPlaybackRate(rate);
-    // もし今再生中だったら、すぐにその場でスピードを切り替えます
     if (audioRef.current) {
       audioRef.current.playbackRate = rate;
     }
@@ -391,7 +387,6 @@ function TrainingSession({ data }) {
     if (isPlayingId === id) { setIsPlayingId(null); return; }
     
     const audio = new Audio(file);
-    // 👇 ここで選んだスピードをセットしています
     audio.playbackRate = playbackRate;
     audioRef.current = audio;
     setIsPlayingId(id);
@@ -559,13 +554,6 @@ function TrainingSession({ data }) {
     <div className="p-4 pb-20 max-w-2xl mx-auto">
       <div className="text-center mb-6">
         <h1 className="text-xl font-bold text-indigo-700 flex items-center justify-center gap-2">{title}</h1>
-        
-        {/* 👇 ここが追加した「再生スピード」のボタンです！ */}
-        <div className="flex justify-center gap-2 mt-4">
-          <button onClick={() => changePlaybackRate(0.8)} className={`text-[10px] px-3 py-1.5 rounded-lg border font-bold transition-all ${playbackRate === 0.8 ? "bg-emerald-500 text-white border-emerald-500 shadow-md" : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"}`}>🟢 0.8倍<br/><span className="text-[8px] opacity-80">初心者</span></button>
-          <button onClick={() => changePlaybackRate(1.0)} className={`text-[10px] px-3 py-1.5 rounded-lg border font-bold transition-all ${playbackRate === 1.0 ? "bg-amber-500 text-white border-amber-500 shadow-md" : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"}`}>🟡 1.0倍<br/><span className="text-[8px] opacity-80">基準</span></button>
-          <button onClick={() => changePlaybackRate(1.3)} className={`text-[10px] px-3 py-1.5 rounded-lg border font-bold transition-all ${playbackRate === 1.3 ? "bg-rose-500 text-white border-rose-500 shadow-md" : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"}`}>🔴 1.3倍<br/><span className="text-[8px] opacity-80">耐性トレ</span></button>
-        </div>
       </div>
 
       {permissionError && (
@@ -642,6 +630,24 @@ function TrainingSession({ data }) {
       <div className="bg-white p-4 rounded-3xl shadow-sm border border-slate-200 mb-6">
         <div className="flex items-center gap-2 font-bold mb-3 text-sm text-slate-600"><TrendingUp size={16} /> スコア推移（最新10回）</div>
         <MiniChart data={history.slice(0, 10).reverse()} />
+      </div>
+
+      {/* 👇 スコア推移の下に移動して、デザインを整えた「再生スピード」ボタン */}
+      <div className="bg-white p-4 rounded-3xl shadow-sm border border-slate-200 mb-8">
+        <div className="flex items-center gap-2 font-bold mb-3 text-sm text-slate-600">
+          <Volume2 size={16} /> お手本音声のスピード
+        </div>
+        <div className="flex justify-center gap-2">
+          <button onClick={() => changePlaybackRate(0.8)} className={`flex-1 text-xs px-2 py-2 rounded-xl border font-bold transition-all ${playbackRate === 0.8 ? "bg-emerald-500 text-white border-emerald-500 shadow-md" : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"}`}>
+            🟢 0.8倍<br/><span className="text-[10px] opacity-80 font-normal">初心者</span>
+          </button>
+          <button onClick={() => changePlaybackRate(1.0)} className={`flex-1 text-xs px-2 py-2 rounded-xl border font-bold transition-all ${playbackRate === 1.0 ? "bg-amber-500 text-white border-amber-500 shadow-md" : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"}`}>
+            🟡 1.0倍<br/><span className="text-[10px] opacity-80 font-normal">実践基準</span>
+          </button>
+          <button onClick={() => changePlaybackRate(1.3)} className={`flex-1 text-xs px-2 py-2 rounded-xl border font-bold transition-all ${playbackRate === 1.3 ? "bg-rose-500 text-white border-rose-500 shadow-md" : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"}`}>
+            🔴 1.3倍<br/><span className="text-[10px] opacity-80 font-normal">耐性トレ</span>
+          </button>
+        </div>
       </div>
 
       <div className="space-y-3 pb-20">
