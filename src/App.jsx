@@ -20,8 +20,6 @@ const scenario1 = {
     {
       id: 1, role: "appointer", label: "アポインター①",
       text: "今回、〇〇さんの場所をお借りして、負担なくスマートハウスにできる施工様募集をさせてもらってるんですが、スマートハウスってご存知ですか？",
-      // 👇 ファイル名はご自身で設定したもの（v2など）に合わせてください！
-      // もし変えていなければそのままでOKです
       audio: "/model_1_v2.m4a", 
     },
     { id: 2, role: "customer", label: "お客様", text: "いや、ま、ちょっと忙しいんで大丈夫です。はい。" },
@@ -284,7 +282,6 @@ export default function App() {
             <BookOpen size={20} />
             <span className="text-sm">暗記突破AI</span>
           </div>
-          {/* 👇 ここを変えました！flex-wrap を追加して、入りきらない場合は折り返すようにしました */}
           <div className="flex flex-wrap bg-slate-100 p-1 rounded-lg w-full justify-center gap-2">
             <button onClick={() => setCurrentCourse("course1")} className={`whitespace-nowrap text-xs font-bold px-3 py-2 rounded-md transition-all ${currentCourse === "course1" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>①スマートハウス</button>
             <button onClick={() => setCurrentCourse("course2")} className={`whitespace-nowrap text-xs font-bold px-3 py-2 rounded-md transition-all ${currentCourse === "course2" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>②奥様決済</button>
@@ -317,6 +314,9 @@ function TrainingSession({ data }) {
   const [hiddenIds, setHiddenIds] = useState(new Set());
   const [checkedIds, setCheckedIds] = useState(new Set());
   const [scoreModeCore, setScoreModeCore] = useState("core"); 
+  
+  // 👇 ここが新しく追加した「再生スピード」の記憶です！
+  const [playbackRate, setPlaybackRate] = useState(1.0);
 
   const [isRecording, setIsRecording] = useState(false);
   const [activeLineId, setActiveLineId] = useState(script[0].id);
@@ -375,6 +375,15 @@ function TrainingSession({ data }) {
     }
   }, [activeLineId]);
 
+  // 👇 スピードを変えるための新しい機能です
+  const changePlaybackRate = (rate) => {
+    setPlaybackRate(rate);
+    // もし今再生中だったら、すぐにその場でスピードを切り替えます
+    if (audioRef.current) {
+      audioRef.current.playbackRate = rate;
+    }
+  };
+
   const playModelAudio = (file, id) => {
     if (!file) return;
     if (isRecording) { alert("録音中は再生できません"); return; }
@@ -382,6 +391,8 @@ function TrainingSession({ data }) {
     if (isPlayingId === id) { setIsPlayingId(null); return; }
     
     const audio = new Audio(file);
+    // 👇 ここで選んだスピードをセットしています
+    audio.playbackRate = playbackRate;
     audioRef.current = audio;
     setIsPlayingId(id);
     audio.play().catch(e => { console.error(e); alert("再生エラー: publicフォルダにファイルがあるか確認してください"); setIsPlayingId(null); });
@@ -548,6 +559,13 @@ function TrainingSession({ data }) {
     <div className="p-4 pb-20 max-w-2xl mx-auto">
       <div className="text-center mb-6">
         <h1 className="text-xl font-bold text-indigo-700 flex items-center justify-center gap-2">{title}</h1>
+        
+        {/* 👇 ここが追加した「再生スピード」のボタンです！ */}
+        <div className="flex justify-center gap-2 mt-4">
+          <button onClick={() => changePlaybackRate(0.8)} className={`text-[10px] px-3 py-1.5 rounded-lg border font-bold transition-all ${playbackRate === 0.8 ? "bg-emerald-500 text-white border-emerald-500 shadow-md" : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"}`}>🟢 0.8倍<br/><span className="text-[8px] opacity-80">初心者</span></button>
+          <button onClick={() => changePlaybackRate(1.0)} className={`text-[10px] px-3 py-1.5 rounded-lg border font-bold transition-all ${playbackRate === 1.0 ? "bg-amber-500 text-white border-amber-500 shadow-md" : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"}`}>🟡 1.0倍<br/><span className="text-[8px] opacity-80">基準</span></button>
+          <button onClick={() => changePlaybackRate(1.3)} className={`text-[10px] px-3 py-1.5 rounded-lg border font-bold transition-all ${playbackRate === 1.3 ? "bg-rose-500 text-white border-rose-500 shadow-md" : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"}`}>🔴 1.3倍<br/><span className="text-[8px] opacity-80">耐性トレ</span></button>
+        </div>
       </div>
 
       {permissionError && (
