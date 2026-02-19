@@ -278,10 +278,14 @@ export default function App() {
       {/* ヘッダー切り替えボタン */}
       <div className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200 px-4 py-3 shadow-sm">
         <div className="max-w-2xl mx-auto flex flex-col items-center gap-3">
-          <div className="flex items-center gap-2 text-indigo-700 font-black">
-            <BookOpen size={20} />
-            <span className="text-sm">暗記突破AI</span>
+          
+          {/* 👇 ここが新しいタイトルです！ */}
+          <div className="flex flex-col items-center justify-center">
+            <span className="text-lg font-black text-indigo-700">🎯 アポ突破AI PRO</span>
+            <span className="text-[10px] font-bold text-indigo-500 tracking-widest mt-0.5">5大ネガ</span>
           </div>
+          {/* 👆 タイトル変更はここまで */}
+
           <div className="flex flex-wrap bg-slate-100 p-1 rounded-lg w-full justify-center gap-2">
             <button onClick={() => setCurrentCourse("course1")} className={`whitespace-nowrap text-xs font-bold px-3 py-2 rounded-md transition-all ${currentCourse === "course1" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>①スマートハウス</button>
             <button onClick={() => setCurrentCourse("course2")} className={`whitespace-nowrap text-xs font-bold px-3 py-2 rounded-md transition-all ${currentCourse === "course2" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>②奥様決済</button>
@@ -632,7 +636,7 @@ function TrainingSession({ data }) {
         <MiniChart data={history.slice(0, 10).reverse()} />
       </div>
 
-      {/* 👇 スコア推移の下に移動して、デザインを整えた「再生スピード」ボタン */}
+      {/* スピード調整ボタン */}
       <div className="bg-white p-4 rounded-3xl shadow-sm border border-slate-200 mb-8">
         <div className="flex items-center gap-2 font-bold mb-3 text-sm text-slate-600">
           <Volume2 size={16} /> お手本音声のスピード
