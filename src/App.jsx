@@ -278,14 +278,10 @@ export default function App() {
       {/* ヘッダー切り替えボタン */}
       <div className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200 px-4 py-3 shadow-sm">
         <div className="max-w-2xl mx-auto flex flex-col items-center gap-3">
-          
-          {/* 👇 ここが新しいタイトルです！ */}
           <div className="flex flex-col items-center justify-center">
             <span className="text-lg font-black text-indigo-700">🎯 アポ突破AI PRO</span>
             <span className="text-[10px] font-bold text-indigo-500 tracking-widest mt-0.5">5大ネガ</span>
           </div>
-          {/* 👆 タイトル変更はここまで */}
-
           <div className="flex flex-wrap bg-slate-100 p-1 rounded-lg w-full justify-center gap-2">
             <button onClick={() => setCurrentCourse("course1")} className={`whitespace-nowrap text-xs font-bold px-3 py-2 rounded-md transition-all ${currentCourse === "course1" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>①スマートハウス</button>
             <button onClick={() => setCurrentCourse("course2")} className={`whitespace-nowrap text-xs font-bold px-3 py-2 rounded-md transition-all ${currentCourse === "course2" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>②奥様決済</button>
@@ -567,7 +563,13 @@ function TrainingSession({ data }) {
         </div>
       )}
 
-      {/* 採点パネル */}
+      {/* 👇 1番目：「スコア推移」のグラフを上に移動しました */}
+      <div className="bg-white p-4 rounded-3xl shadow-sm border border-slate-200 mb-6">
+        <div className="flex items-center gap-2 font-bold mb-3 text-sm text-slate-600"><TrendingUp size={16} /> スコア推移（最新10回）</div>
+        <MiniChart data={history.slice(0, 10).reverse()} />
+      </div>
+
+      {/* 👇 2番目：「採点開始」ボタンがあるパネルをグラフの下に移動しました */}
       <div className="bg-white p-5 rounded-3xl shadow-xl border border-indigo-100 mb-8 relative overflow-hidden">
         {isRecording && <div className="absolute inset-0 border-4 border-rose-400 rounded-3xl animate-pulse pointer-events-none z-20"></div>}
         <div className="flex justify-between items-start mb-3">
@@ -590,7 +592,7 @@ function TrainingSession({ data }) {
           )}
         </div>
 
-        {/* 長文モード切替（ターゲットIDの時だけ表示） */}
+        {/* 長文モード切替 */}
         {activeLineId === targetId && (
           <div className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-2xl p-2 mb-4">
             <span className="text-xs text-slate-500 font-bold ml-2">採点範囲</span>
@@ -629,11 +631,6 @@ function TrainingSession({ data }) {
             {oneFix && <div className={`p-4 rounded-2xl border shadow-sm ${oneFixStyle(oneFix.type)}`}><div className="text-[10px] font-black opacity-60 mb-1 uppercase tracking-wider">Next</div><div className="text-sm font-black mb-1">{oneFix.title}</div><div className="text-xs opacity-90">{oneFix.body}</div></div>}
           </div>
         )}
-      </div>
-
-      <div className="bg-white p-4 rounded-3xl shadow-sm border border-slate-200 mb-6">
-        <div className="flex items-center gap-2 font-bold mb-3 text-sm text-slate-600"><TrendingUp size={16} /> スコア推移（最新10回）</div>
-        <MiniChart data={history.slice(0, 10).reverse()} />
       </div>
 
       {/* スピード調整ボタン */}
