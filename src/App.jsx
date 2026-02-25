@@ -10,10 +10,10 @@ import {
 // 📜 データエリア
 // ==========================================
 
-// --- コース1：スマートハウス ---
+// --- コース1：フロントネガ ---
 const scenario1 = {
   id: "smart_house_v1",
-  title: "① スマートハウス",
+  title: "①フロントネガ",
   targetId: 5,
   targetText: "蓄電池と太陽光で電気を作って、貯めて、光熱費を払わない。新築は義務化、２軒に1軒で増えている。今建っている住宅でも検討されている方が増えているんですよね。。",
   script: [
@@ -41,10 +41,10 @@ const scenario1 = {
   initialUnlock: [1, 3, 5], 
 };
 
-// --- コース2：奥様決済 ---
+// --- コース2：主権者に相談 ---
 const scenario2 = {
   id: "okusan_v1",
-  title: "② 奥様決済・不在",
+  title: "②主権者に相談",
   targetId: 9,
   targetText: "4名様ご家族で電気代が1万円を超えている。オール電化で聞いておいてよかったという方が多かった。絶対にすぐやってという話ではない。日曜日でしたら午前と午後、どちらがいらっしゃる事が多いですか？",
   script: [
@@ -88,10 +88,10 @@ const scenario2 = {
   initialUnlock: [1, 3, 5, 7, 9, 11, 13, 15],
 };
 
-// --- コース3：忙しいお客様 ---
+// --- コース3：忙しい(予定がわからない) ---
 const scenario3 = {
   id: "busy_customer_v1",
-  title: "③ 忙しいお客様",
+  title: "③忙しい(予定がわからない)",
   targetId: 13, 
   targetText: "特にこちらのお家みたいに結構オール電化とかで、これだけ電気代を1万円以上とか払っているご家庭は聞いておいてよかったっておっしゃる方とか正直多かった。もちろん、聞いてもらったからといってすぐやってくださいっていう話でもなかったんで、皆さんお気軽に聞いていただけた。まずは参考程度に。次の日曜日とか朝だと9時頃ならいらっしゃりそうですかね？",
   script: [
@@ -149,10 +149,10 @@ const scenario3 = {
   initialUnlock: [1, 3, 5, 7, 9, 11, 13, 15], 
 };
 
-// --- コース4：蓄電池「高い・断った」 ---
+// --- コース4：蓄電池高い(差別化トーク) ---
 const scenario4 = {
   id: "battery_refusal_v1",
-  title: "④ 蓄電池「高い」への切り返し",
+  title: "④蓄電池高い(差別化トーク)",
   targetId: 9, 
   targetText: "詳しく話しを聞いてみると、前に聞いた会社さんが、取り扱いのメーカーが2社、３社しか取り扱いがなくて、しかもその会社の売りたい値段高めの大きなタイプの蓄電池ばかりをお勧めしている会社も多いで、そういった会社さんでお話聞かれたかたが、前に聞いたけど、高かったとか、負担がでたって仰られる方が多かったんです。うちほうが、今○○さんにも入らせて貰っている事もあって、取り扱いのメーカーが30メーカー以上ありまして、その中からおうちの電気の使い方とか太陽光の発電量とかにぴったりのメーカーをさがさして貰うと、全然負担なくできたとか、前聞いた時より全然安かったという方が多かったんです。ご主人のところとかも、すごくいい太陽光を使っていて、発電もよくされていらっしゃいますし、ちょうど設置から10年も過ぎているタイミングですので。過去にそういう話を聞いたことがある方が逆に『うちで聞いておいてよかったわ』とおっしゃる方が多かったので。",
   script: [
@@ -198,10 +198,10 @@ const scenario4 = {
   initialUnlock: [1, 3, 5, 7, 9, 11], 
 };
 
-// --- コース5：「考えていない」への切り返し ---
+// --- コース5：考えてない ---
 const scenario5 = {
   id: "not_thinking_v1",
-  title: "⑤ 考えていない",
+  title: "⑤考えてない",
   targetId: 7, 
   targetText: "言葉さえ知らなかったら考えていなかったという方が多かった。光熱費が上がってきていることは確かに実感しておられてて、何もしなくても払っていかないといけないなら、支払いが減っていくなら考える価値あるかなとおっしゃっていた。オール電化で1万円以上かかっているのであれば、負担なくできるかは情報だけでも知っておいて良かったとおっしゃることは多かった。平日か土日かと言われると、どちらの方がいらっしゃることが多いイメージですかね？",
   script: [
@@ -282,11 +282,13 @@ export default function App() {
             <span className="text-lg font-black text-indigo-700">🎯 アポ突破AI PRO</span>
             <span className="text-[10px] font-bold text-indigo-500 tracking-widest mt-0.5">5大ネガ</span>
           </div>
-          <div className="flex flex-wrap bg-slate-100 p-1 rounded-lg w-full justify-center gap-2">
-            <button onClick={() => setCurrentCourse("course1")} className={`whitespace-nowrap text-xs font-bold px-3 py-2 rounded-md transition-all ${currentCourse === "course1" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>①スマートハウス</button>
-            <button onClick={() => setCurrentCourse("course2")} className={`whitespace-nowrap text-xs font-bold px-3 py-2 rounded-md transition-all ${currentCourse === "course2" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>②奥様決済</button>
-            <button onClick={() => setCurrentCourse("course3")} className={`whitespace-nowrap text-xs font-bold px-3 py-2 rounded-md transition-all ${currentCourse === "course3" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>③忙しい</button>
-            <button onClick={() => setCurrentCourse("course4")} className={`whitespace-nowrap text-xs font-bold px-3 py-2 rounded-md transition-all ${currentCourse === "course4" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>④蓄電池高い</button>
+          
+          {/* 👇 ここのボタンの文字を変更し、横スクロールできるようにしています */}
+          <div className="flex bg-slate-100 p-1 rounded-lg w-full overflow-x-auto gap-2 scrollbar-hide">
+            <button onClick={() => setCurrentCourse("course1")} className={`whitespace-nowrap text-xs font-bold px-3 py-2 rounded-md transition-all ${currentCourse === "course1" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>①フロントネガ</button>
+            <button onClick={() => setCurrentCourse("course2")} className={`whitespace-nowrap text-xs font-bold px-3 py-2 rounded-md transition-all ${currentCourse === "course2" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>②主権者に相談</button>
+            <button onClick={() => setCurrentCourse("course3")} className={`whitespace-nowrap text-xs font-bold px-3 py-2 rounded-md transition-all ${currentCourse === "course3" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>③忙しい(予定がわからない)</button>
+            <button onClick={() => setCurrentCourse("course4")} className={`whitespace-nowrap text-xs font-bold px-3 py-2 rounded-md transition-all ${currentCourse === "course4" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>④蓄電池高い(差別化トーク)</button>
             <button onClick={() => setCurrentCourse("course5")} className={`whitespace-nowrap text-xs font-bold px-3 py-2 rounded-md transition-all ${currentCourse === "course5" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>⑤考えてない</button>
           </div>
         </div>
@@ -563,13 +565,13 @@ function TrainingSession({ data }) {
         </div>
       )}
 
-      {/* 👇 1番目：「スコア推移」のグラフを上に移動しました */}
+      {/* スコア推移 */}
       <div className="bg-white p-4 rounded-3xl shadow-sm border border-slate-200 mb-6">
         <div className="flex items-center gap-2 font-bold mb-3 text-sm text-slate-600"><TrendingUp size={16} /> スコア推移（最新10回）</div>
         <MiniChart data={history.slice(0, 10).reverse()} />
       </div>
 
-      {/* 👇 2番目：「採点開始」ボタンがあるパネルをグラフの下に移動しました */}
+      {/* 採点パネル */}
       <div className="bg-white p-5 rounded-3xl shadow-xl border border-indigo-100 mb-8 relative overflow-hidden">
         {isRecording && <div className="absolute inset-0 border-4 border-rose-400 rounded-3xl animate-pulse pointer-events-none z-20"></div>}
         <div className="flex justify-between items-start mb-3">
@@ -592,7 +594,7 @@ function TrainingSession({ data }) {
           )}
         </div>
 
-        {/* 長文モード切替 */}
+        {/* 長文モード切替（ターゲットIDの時だけ表示） */}
         {activeLineId === targetId && (
           <div className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-2xl p-2 mb-4">
             <span className="text-xs text-slate-500 font-bold ml-2">採点範囲</span>
